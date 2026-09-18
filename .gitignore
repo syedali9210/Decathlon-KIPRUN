@@ -1,0 +1,6 @@
+# reference material and local tooling, not part of the site
+_src/
+.claude/
+# old Utopia Tokyo media the KIPRUN store no longer uses
+assets/masks/
+assets/video/
