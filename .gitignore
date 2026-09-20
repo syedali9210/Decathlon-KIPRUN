@@ -4,3 +4,7 @@ _src/
 # old Utopia Tokyo media the KIPRUN store no longer uses
 assets/masks/
 assets/video/
+# live analytics data (visitor events)
+analytics/events.db
+# python bytecode
+__pycache__/

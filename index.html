@@ -3,23 +3,10 @@
 <title>KIPRUN Run Store | Shoes, Apparel &amp; Accessories</title>
 <meta name="description" content="KIPRUN by Decathlon: five shoe series, practice and race-day kits, and the accessories to match.">
 <link rel="preconnect" href="https://contents.mediadecathlon.com" crossorigin>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=13">
 
+<!-- ═══ custom cursor ═══ -->
 <div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__ring"></span></div>
-
-<!-- ═══ epilepsy gate ═══ -->
-<div class="disclaimer" id="disclaimer">
-  <div class="disclaimer__bg" id="disclaimerBg"></div>
-  <div class="disclaimer__content">
-    <h2 class="disclaimer__title" id="disclaimer-title">Experience<br>Warning</h2>
-    <p class="p-m">This site features high-contrast visual effects<br>and rapid transitions that may trigger seizures<br>in people with photosensitive epilepsy.</p>
-    <p class="p-m">If you or someone you know has a history of photosensitive<br>seizures, please select Safe Mode.</p>
-    <div class="disclaimer__actions">
-      <button class="button" data-mode="safe"><i></i><span data-scramble>[ USE SAFE MODE ]</span><i></i></button>
-      <button class="button" data-mode="glitch"><i></i><span data-scramble>[ ENABLE GLITCH EFFECT ]</span><i></i></button>
-    </div>
-  </div>
-</div>
 
 <!-- ═══ preloader ═══ -->
 <div class="preloader" id="preloader">
@@ -32,199 +19,209 @@
   </div>
 </div>
 
-<!-- ═══ top bar: appears once you leave the hero ═══ -->
-<header class="hud" id="hud">
-  <div class="hud__bar">
-    <a class="hud__logo" href="#top"><b>KIP</b><em>RUN</em></a>
-    <div class="hud__now eyebrow" aria-live="polite">
-      <span id="hudIdx">01</span><i>/</i><span id="hudTotal">06</span><b id="hudLabel">Kiprun</b>
-    </div>
-    <a class="hud__shop eyebrow" href="#range">Shop ↗</a>
-    <div class="hud__progress" aria-hidden="true"><span id="hudProgress"></span></div>
-  </div>
-</header>
+<!-- ═══ fixed HUD frame ═══ -->
+<div class="frame" aria-hidden="true">
+  <span class="frame__reticle"></span>
+</div>
 
 <main class="main-wrapper" id="top">
 
-  <!-- ─── 01 hero: the brand + the whole series ─── -->
-  <section class="section sec cc-hero" id="hero" data-theme="blue" data-label="Kiprun">
+  <!-- ─── 1. hero: about KIPRUN + the whole series ─── -->
+  <section class="section cc-hero" id="hero">
     <div class="hero__component">
+      <div class="hero__grid" aria-hidden="true">
+        <i class="v" style="--x:41.7%"></i><i class="v" style="--x:66.7%"></i>
+        <i class="h" style="--y:28.4%;--x0:0;--x1:41.7%"></i>
+        <i class="h" style="--y:55%;--x0:41.7%;--x1:66.7%"></i>
+        <i class="h" style="--y:79%;--x0:41.7%;--x1:66.7%"></i>
+        <i class="h" style="--y:28.4%;--x0:66.7%;--x1:100%"></i>
+      </div>
+
       <nav class="hero__nav" aria-label="Store">
-        <a class="hero__logo" href="#top"><b>KIP</b><em>RUN</em></a>
-        <div class="hero__coords eyebrow"><a href="#feature">Kipride Max</a><a href="#range">Range</a><a href="#kit">Kits</a></div>
-        <div class="eyebrow hero__by">By Decathlon</div>
+        <a class="hero__logo" href="#top"><b>DECA</b>THLON</a>
+        <div class="hero__coords eyebrow"><a href="#feature">Kipride Max</a><i>/</i><a href="#range">Range</a><i>/</i><a href="#kit">Kits</a></div>
+        <div class="eyebrow hero__japan">Run store · India</div>
       </nav>
 
-      <h1 class="h-display hero__title" id="hero-title"><span class="w-solid">KIPRUN</span><span class="u-text-outline">STORE</span></h1>
+      <h1 class="h-display hero__title" id="hero-title">
+        <span class="w-solid">DECATHLON</span>
+        <span class="u-text-outline">KIPRUN</span>
+      </h1>
 
       <div class="hero__body">
         <div class="hero__left">
           <div class="hero__claim">
-            <span class="h-mid" data-glitch>Fitted.</span>
-            <span class="h-mid" data-glitch>Cushioned.</span>
-            <span class="h-mid" data-glitch>Fast.</span>
+            <span class="h-mid">Fitted.</span>
+            <span class="h-mid">Cushioned.</span>
+            <span class="h-mid">Fast.</span>
           </div>
-          <p class="hero__lede">KIPRUN is Decathlon's running brand. Five shoe series, from the everyday <span class="u-mark">Kipcore</span> to the carbon-plated <span class="u-mark">Kipstorm</span>, with the apparel and accessories to match.</p>
-          <a class="button cc-solid cc-hero-cta" href="#range"><span data-scramble>SHOP THE RANGE</span></a>
+          <a class="button cc-hero-cta" href="#range"><i></i><span data-scramble>&gt;_SHOP_THE_RANGE</span><i></i></a>
         </div>
 
         <div class="hero__gallery" id="heroGallery">
           <div class="hero-slider" id="heroSlider"></div>
-          <ol class="hero__series eyebrow" id="heroSeries" aria-label="Shoe series"></ol>
+          <div class="hero__gallery-label eyebrow" id="heroSliderLabel">Kipcore</div>
+          <ol class="hero__series eyebrow" id="heroSeries"></ol>
         </div>
       </div>
 
-      <div class="hero__foot eyebrow">
-        <span>Scroll to enter the store ↓</span>
-        <span id="heroCount">Series 01 / 05</span>
+      <div class="hero__foot">
+        <div class="eyebrow hero__scroll">Scroll to enter the store ↓</div>
+        <div class="eyebrow hero__version" id="heroCount">Series 01 / 05</div>
       </div>
     </div>
   </section>
 
-  <!-- ─── 02 main shoe: pinned, one feature at a time ─── -->
-  <section class="section sec cc-feature" id="feature" data-theme="dark" data-label="Kipride Max">
-    <div class="feature__pin">
-      <header class="sec-head">
-        <div class="sec-head__meta eyebrow"><span class="sec-head__idx">02</span><span class="sec-head__label">The main shoe</span></div>
-        <h2 class="sec-head__title">Kipride Max</h2>
-        <p class="sec-head__kicker">Max cushion, model 8960547. The best shock absorption and comfort in the KIPRUN range.</p>
-      </header>
-
-      <div class="feature__body">
-        <div class="feature__chapters" id="featureChapters"></div>
-        <div class="feature__stage">
-          <div class="feature__shoe" id="featureShoe"><img id="featureImg" alt="Kiprun Kipride Max running shoe"></div>
-        </div>
-      </div>
-
-      <ol class="feature__steps eyebrow" id="featureSteps"></ol>
-    </div>
-  </section>
-
-  <!-- ─── 03 range: popping product + list ─── -->
-  <section class="section sec cc-range" id="range" data-theme="light" data-label="The range">
-    <header class="sec-head">
-      <div class="sec-head__meta eyebrow"><span class="sec-head__idx">03</span><span class="sec-head__label">The range</span></div>
-      <h2 class="sec-head__title">Shop the range</h2>
-      <p class="sec-head__kicker">Five shoe series, the apparel that goes with them, and the accessories that carry everything else.</p>
-    </header>
-
-    <div class="window">
-      <div class="window__bar">
-        <div class="range__tabs" role="tablist" aria-label="Category">
-          <button class="range__tab is-active" data-cat="shoes" role="tab" aria-selected="true">Shoes<sup id="countShoes"></sup></button>
-          <button class="range__tab" data-cat="apparel" role="tab" aria-selected="false">Apparel<sup id="countApparel"></sup></button>
-          <button class="range__tab" data-cat="accessories" role="tab" aria-selected="false">Accessories<sup id="countAccessories"></sup></button>
-        </div>
-        <span class="eyebrow window__meta" id="rangeMeta"></span>
-      </div>
-
-      <div class="window__body range__body">
-        <div class="range__stage" id="rangeStage">
-          <div class="stage__frame" id="stageFrame">
-            <div class="stage__tilt"><div class="stage__pop" id="stagePop"><img id="stageImg" alt=""></div></div>
-            <div class="stage__code eyebrow" id="stageCode"></div>
+  <!-- ─── 2. main shoe: Kipride Max floating with its key features ─── -->
+  <section class="section cc-feature u-tech" id="feature">
+    <h2 class="sr-only">Kipride Max: the best shock absorption and comfort in the KIPRUN range</h2>
+    <div class="feature__sticky">
+      <div class="feature__kanji" aria-hidden="true">MAX</div>
+      <div class="feature__stage" id="featureStage">
+        <div class="feature__shoe" id="featureShoe">
+          <div class="feature__bob">
+            <img id="featureImg" alt="Kiprun Kipride Max running shoe">
+            <img class="feature__ghost" id="featureGhost" alt="" aria-hidden="true">
           </div>
-          <div class="stage__info">
-            <div class="eyebrow stage__tag" id="stageTag"></div>
-            <h3 class="stage__name" id="stageName"></h3>
-            <ol class="usps" id="stageUsps"></ol>
-            <div class="stage__buy">
-              <b id="stagePrice"></b>
-              <div class="stage__btns">
-                <a class="button cc-sm cc-solid" id="stageLink" target="_blank" rel="noopener"><span data-scramble>VIEW ON DECATHLON</span></a>
-                <button class="button cc-sm" id="stageMore"><span data-scramble>DETAILS</span></button>
-              </div>
+          <span class="feature__shadow" aria-hidden="true"></span>
+        </div>
+      </div>
+      <ol class="feature__specs" id="featureSpecs"></ol>
+    </div>
+    <div class="feature__words" id="featureWords">
+      <span class="feature__w">Best</span>
+      <span class="feature__w">shock</span>
+      <span class="feature__w">absorption</span>
+      <span class="feature__w">in</span>
+      <span class="feature__w">the</span>
+      <span class="feature__w">Kiprun</span>
+      <span class="feature__w">range</span>
+      <span class="feature__w">Kipride</span>
+      <span class="feature__w">Max</span>
+    </div>
+    <div class="feature__buy" id="featureBuy">
+      <span class="eyebrow" id="featureCode">Model 8960547</span>
+      <b id="featurePrice">₹12,999</b>
+      <a class="button" id="featureLink" href="https://www.decathlon.in/p/8960547" target="_blank" rel="noopener"><i></i><span data-scramble>&gt;_VIEW_KIPRIDE_MAX</span><i></i></a>
+    </div>
+  </section>
+
+  <!-- ─── 3. range: popping product + list ─── -->
+  <section class="section cc-range u-tech" id="range">
+    <div class="range__head">
+      <div>
+        <div class="eyebrow range__eyebrow">&gt;_THE_RANGE</div>
+        <h2 class="h-mid range__title"><span>Shop</span> <span>the range</span></h2>
+      </div>
+      <div class="range__tabs" role="tablist" aria-label="Category">
+        <button class="range__tab is-active" data-cat="shoes" data-track="Tab: Shoes" role="tab" aria-selected="true"><span class="dot"></span>Shoes<sup id="countShoes"></sup></button>
+        <button class="range__tab" data-cat="apparel" data-track="Tab: Apparel" role="tab" aria-selected="false"><span class="dot"></span>Apparel<sup id="countApparel"></sup></button>
+        <button class="range__tab" data-cat="accessories" data-track="Tab: Accessories" role="tab" aria-selected="false"><span class="dot"></span>Accessories<sup id="countAccessories"></sup></button>
+      </div>
+    </div>
+
+    <div class="range__body">
+      <div class="range__stage" id="rangeStage">
+        <div class="stage__frame" id="stageFrame">
+          <b></b><b></b><i></i><i></i>
+          <div class="stage__tilt">
+            <div class="stage__float">
+              <div class="stage__pop" id="stagePop"><img id="stageImg" alt=""></div>
             </div>
-            <p class="stage__note eyebrow" id="stageNote" hidden></p>
           </div>
+          <span class="stage__shadow" aria-hidden="true"></span>
+          <div class="stage__code eyebrow" id="stageCode"></div>
         </div>
-
-        <div class="range__listwrap">
-          <div class="range__cols eyebrow" aria-hidden="true"><span>No.</span><span></span><span>Product</span><span>Price</span></div>
-          <ol class="range__list" id="rangeList"></ol>
+        <div class="stage__info">
+          <div class="eyebrow stage__tag" id="stageTag"></div>
+          <h3 class="h-mid stage__name" id="stageName"></h3>
+          <ol class="usps" id="stageUsps"></ol>
+          <div class="stage__buy">
+            <b id="stagePrice"></b>
+            <a class="button cc-sm" id="stageLink" target="_blank" rel="noopener"><span data-scramble>VIEW ON DECATHLON</span></a>
+            <button class="button cc-sm" id="stageMore"><span data-scramble>DETAILS</span></button>
+          </div>
+          <p class="stage__note eyebrow" id="stageNote" hidden></p>
         </div>
       </div>
-
-      <div class="window__foot eyebrow">
-        <span>Hover to preview · click for details</span>
-        <span>Prices as listed on decathlon.in</span>
-      </div>
+      <ol class="range__list" id="rangeList"></ol>
     </div>
   </section>
 
-  <!-- ─── 04 breaker ─── -->
-  <section class="section sec cc-breaker" id="breaker" data-theme="dark" data-label="42K">
+  <!-- ─── 4. breaker ─── -->
+  <section class="section cc-breaker" id="breaker">
     <div class="breaker">
       <div class="breaker__bg" aria-hidden="true">
         <span class="breaker__bg-circle" id="circleA"></span>
         <span class="breaker__bg-circle cc-dark" id="circleB"></span>
       </div>
       <div class="breaker__inner">
-        <div class="breaker__label sec-head__meta eyebrow"><span class="sec-head__idx">04</span><span>Every kilometre</span></div>
+        <div class="breaker__eye breaker__eye--l" aria-hidden="true"><svg viewBox="0 0 80 40"><use href="#eye"/></svg></div>
+        <div class="breaker__label eyebrow">KIPRUN</div>
+        <div class="breaker__eye breaker__eye--r" aria-hidden="true"><svg viewBox="0 0 80 40"><use href="#eye"/></svg></div>
         <div class="breaker__kanji" aria-hidden="true">42K</div>
-        <div class="breaker__rows">
-          <div class="breaker__row" data-row="1">
-            <span data-word>Fitted</span><span data-word>light</span><span data-word>cushioned</span>
-            <span data-word>fast</span><span data-word>race</span><span data-word>ready</span>
-          </div>
-          <div class="breaker__row" data-row="2">
-            <span data-word>from</span><span data-word>a</span><span data-word>first</span><span data-word>5K</span>
-            <span data-word>to</span><span data-word>race</span><span data-word>day</span>
-          </div>
+        <div class="breaker__row" data-row="1">
+          <span data-word>Fitted</span><span data-word>light</span><span data-word>cushioned</span>
+          <span data-word>fast</span><span data-word>race</span><span data-word>ready</span>
+        </div>
+        <div class="breaker__row" data-row="2">
+          <span data-word>from</span><span data-word>a</span><span data-word>first</span><span data-word>5K</span>
+          <span data-word>to</span><span data-word>race</span><span data-word>day</span><span data-word>and</span><span data-word>beyond</span>
         </div>
       </div>
       <div class="marquee" id="marquee"><div class="marquee__track" id="marqueeTrack"></div></div>
     </div>
   </section>
 
-  <!-- ─── 05 kit builder: the panoplies ─── -->
-  <section class="section sec cc-kit" id="kit" data-theme="dark" data-label="Build your kit">
-    <header class="sec-head">
-      <div class="sec-head__meta eyebrow"><span class="sec-head__idx">05</span><span class="sec-head__label">Panoply · practice and race-day kits</span></div>
-      <h2 class="sec-head__title">Build your kit</h2>
-      <p class="sec-head__kicker">Pick a runner and a day. Click any piece to see the rest of its kit, with that piece pinned first.</p>
-    </header>
-
-    <div class="window">
-      <div class="window__bar">
-        <div class="kit__seg" role="group" aria-label="Runner">
-          <span class="eyebrow">Runner</span>
-          <button class="button cc-sm" data-who="man"><span>MAN</span></button>
-          <button class="button cc-sm" data-who="woman"><span>WOMAN</span></button>
-        </div>
-        <div class="kit__seg" role="group" aria-label="Day">
-          <span class="eyebrow">Day</span>
-          <button class="button cc-sm" data-day="practice"><span>PRACTICE</span></button>
-          <button class="button cc-sm" data-day="race"><span>RACE</span></button>
-        </div>
-        <span class="eyebrow window__meta">Models <b id="kitModels"></b></span>
+  <!-- ─── 5. kit builder: the panoplies ─── -->
+  <section class="section cc-kit" id="kit">
+    <div class="kit__sticky u-tech">
+      <div class="kit__backdrop" aria-hidden="true">
+        <svg class="kit__crest" viewBox="0 0 400 400"><use href="#shield"/></svg>
       </div>
 
-      <div class="window__body kit__grid">
-        <div id="kitLeft"></div>
-        <div id="kitRight"></div>
-        <aside class="kit__summary">
-          <span class="eyebrow kit__status" id="kitStatus">&gt;_MAN_PRACTICE_DAY_KIT</span>
+      <div class="kit__grid">
+        <div class="kit__side" id="kitLeft"></div>
+
+        <div class="kit__center">
+          <div class="eyebrow kit__kanji">Panoply</div>
+          <h2 class="h-mid kit__title"><span>Build</span> <span>your kit</span></h2>
+          <div class="kit__seg" role="group" aria-label="Runner">
+            <button class="button cc-sm" data-who="man"><span>MAN</span></button>
+            <button class="button cc-sm" data-who="woman"><span>WOMAN</span></button>
+          </div>
+          <div class="kit__seg" role="group" aria-label="Day">
+            <button class="button cc-sm" data-day="practice"><span>PRACTICE DAY</span></button>
+            <button class="button cc-sm" data-day="race"><span>RACE DAY</span></button>
+          </div>
           <div class="kit__readout">
             <div><span class="eyebrow">Items</span><b id="kitItems">3</b></div>
             <div><span class="eyebrow">Kit total</span><b id="kitTotal">₹0</b></div>
           </div>
           <div class="kit__progress"><span class="kit__bar" id="kitBar"></span></div>
-          <p class="kit__note" id="kitNote"></p>
-          <div class="kit__actions">
-            <button class="button cc-sm cc-solid" id="kitShop"><span data-scramble>SHOP THIS KIT</span></button>
-            <button class="button cc-sm" id="kitRandom"><span data-scramble>RANDOM KIT</span></button>
+          <div class="kit__meta eyebrow">
+            <span id="kitStatus">&gt;_MAN_PRACTICE_DAY_KIT</span>
+            <span>MODELS: <b id="kitModels"></b></span>
           </div>
-        </aside>
+          <p class="kit__note eyebrow" id="kitNote" hidden></p>
+          <div class="kit__actions">
+            <button class="button cc-sm" id="kitRandom"><span data-scramble>RANDOM KIT</span></button>
+            <button class="button cc-sm" id="kitShop"><span data-scramble>SHOP THIS KIT</span></button>
+          </div>
+        </div>
+
+        <div class="kit__side" id="kitRight"></div>
       </div>
     </div>
   </section>
 
-  <!-- ─── 06 footer ─── -->
-  <footer class="section sec cc-footer" id="reach" data-theme="blue" data-label="Store">
+  <!-- ─── 6. footer ─── -->
+  <footer class="section cc-footer" id="reach">
     <div class="footer">
-      <div class="footer__top sec-head__meta eyebrow"><span class="sec-head__idx">06</span><span>Run store · India</span></div>
+      <div class="footer__top">
+        <div class="eyebrow">42.195 KM</div>
+        <div class="eyebrow">Run store · India</div>
+      </div>
       <div class="footer__cols">
         <p class="p-l">KIPRUN is Decathlon's running brand: five shoe series, the kits to train and race in, and the accessories that carry everything else.</p>
         <div class="eyebrow footer__credits">
@@ -243,7 +240,7 @@
 
 <!-- ═══ product detail ═══ -->
 <div class="panel" id="panel" hidden role="dialog" aria-modal="true" aria-labelledby="panelName">
-  <button class="panel__close" id="panelClose" aria-label="Close">×</button>
+  <button class="panel__close" id="panelClose" aria-label="Close" data-track="Close panel">×</button>
   <figure class="panel__img"><img id="panelImg" src="" alt=""></figure>
   <div class="panel__body">
     <div class="eyebrow" id="panelCode"></div>
@@ -252,7 +249,7 @@
     <ol class="usps" id="panelUsps"></ol>
     <div class="panel__buy">
       <b id="panelPrice"></b>
-      <a class="button cc-sm cc-solid" id="panelLink" target="_blank" rel="noopener"><span>VIEW ON DECATHLON.IN ↗</span></a>
+      <a class="button cc-sm" id="panelLink" target="_blank" rel="noopener"><span>VIEW ON DECATHLON.IN ↗</span></a>
     </div>
     <p class="stage__note eyebrow" id="panelNote" hidden></p>
     <div class="panel__kit" id="panelKit" hidden>
@@ -262,9 +259,32 @@
   </div>
 </div>
 
+<!-- ═══ svg defs ═══ -->
+<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <g id="crest">
+      <rect x="2" y="2" width="60" height="60" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="32" cy="34" r="16" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M32 10 L48 26 H16 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+    </g>
+    <g id="eye">
+      <ellipse cx="40" cy="20" rx="38" ry="18" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <ellipse cx="40" cy="20" rx="16" ry="18" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <path d="M2 20h76M40 2v36" stroke="currentColor" stroke-width="1.6"/>
+    </g>
+    <g id="shield">
+      <path d="M200 30 L340 100 V240 L200 370 L60 240 V100 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M200 70 L305 122 V232 L200 330 L95 232 V122 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="200" cy="200" r="62" fill="none" stroke="currentColor" stroke-width="2"/>
+      <path d="M200 20v40M200 340v40M20 200h40M340 200h40" stroke="currentColor" stroke-width="1.4"/>
+    </g>
+  </defs>
+</svg>
+
+<script src="track.js"></script>
 <script src="vendor/gsap.min.js"></script>
 <script src="vendor/ScrollTrigger.min.js"></script>
 <script src="vendor/SplitText.min.js"></script>
 <script src="vendor/ScrambleTextPlugin.min.js"></script>
 <script src="vendor/lenis.min.js"></script>
-<script src="main.js"></script>
+<script src="main.js?v=13"></script>

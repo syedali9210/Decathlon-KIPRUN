@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KIPRUN · Live analytics</title>
+<style>
+  @font-face{font-family:PPMori;src:url("/assets/fonts/PPMori-SemiBold.otf") format("opentype");font-weight:600;font-display:swap}
+  @font-face{font-family:PPMori;src:url("/assets/fonts/PPMori-Regular.ttf") format("truetype");font-weight:400;font-display:swap}
+  @font-face{font-family:Zpix;src:url("/assets/fonts/Zpix.woff2") format("woff2");font-weight:400;font-display:swap}
+  :root{
+    --blue:#3643BA;--ink:#0E1330;--muted:rgba(14,19,48,.6);--line:rgba(14,19,48,.12);
+    --bg:#F3F4FA;--card:#fff;--track:#E8EAF6;--live:#1F8A5B;
+    --f1:PPMori,Arial,sans-serif;--f2:Zpix,"Courier New",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font:400 14px/1.45 var(--f1);-webkit-font-smoothing:antialiased}
+  .mono{font-family:var(--f2);font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+  .muted{color:var(--muted)}
+
+  header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:24px;padding:0 24px;height:56px;background:var(--blue);color:#fff}
+  .logo{font:600 20px/1 var(--f1);letter-spacing:-.02em}
+  .logo span{opacity:.7;font-weight:400;margin-left:10px;font-size:15px}
+  .live{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .dot{width:8px;height:8px;border-radius:50%;background:#7CF0B5;box-shadow:0 0 0 0 rgba(124,240,181,.6);animation:pulse 1.6s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 8px rgba(124,240,181,0)}100%{box-shadow:0 0 0 0 rgba(124,240,181,0)}}
+  header a{padding:6px 10px;border:1px solid rgba(255,255,255,.5)}
+  header a:hover{background:#fff;color:var(--blue)}
+  a{color:inherit;text-decoration:none}
+
+  main{max-width:1440px;margin:0 auto;padding:24px;display:grid;gap:16px}
+  .grid{display:grid;gap:16px}
+  .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);padding:18px 20px;min-width:0}
+  .card h2{font:600 16px/1.2 var(--f1);margin-bottom:4px}
+  .card .sub{margin-bottom:14px}
+
+  /* stat tiles: the number is the chart */
+  .tile .mono{color:var(--muted)}
+  .tile b{display:block;margin-top:10px;font:600 40px/1 var(--f1);letter-spacing:-.02em}
+  .tile small{display:block;margin-top:6px;color:var(--muted);font-size:13px}
+  .tile.is-live b{color:var(--blue)}
+
+  /* ranked bars: one hue, value at the tip, label in ink */
+  .bars{display:grid;gap:10px}
+  .bar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
+  .bar span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar b{font-weight:600;font-variant-numeric:tabular-nums}
+  .bar i{grid-column:1 / -1;height:10px;background:var(--track);border-radius:0 4px 4px 0}
+  .bar i::before{content:"";display:block;height:100%;width:var(--w);background:var(--blue);border-radius:0 4px 4px 0;transition:width .4s ease}
+
+  table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+  th{text-align:left;font:400 11px/1.2 var(--f2);text-transform:uppercase;letter-spacing:.03em;color:var(--muted);padding:0 8px 8px;border-bottom:1px solid var(--line)}
+  td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  td.num,th.num{text-align:right}
+  td.lbl{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .scroll{overflow-x:auto}
+  .pill{display:inline-flex;align-items:center;gap:6px;font:400 11px/1 var(--f2);text-transform:uppercase}
+  .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted)}
+  .pill.on{color:var(--live)}
+  .pill.on::before{background:var(--live)}
+  .tag{display:inline-block;padding:3px 6px;font:400 11px/1 var(--f2);text-transform:uppercase;background:var(--track);color:var(--blue)}
+  .tag.rage,.tag.dead{background:var(--ink);color:#fff}
+  .empty{padding:18px 0;color:var(--muted)}
+  .feed{max-height:420px;overflow:auto}
+
+  @media (max-width:1100px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3,.g2{grid-template-columns:1fr}}
+  @media (max-width:560px){main{padding:12px}.g4{grid-template-columns:1fr 1fr}.tile b{font-size:30px}header{padding:0 12px;gap:12px}.logo span{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">KIPRUN<span>Live analytics</span></div>
+  <div class="live mono"><span class="dot" aria-hidden="true"></span><span id="liveTxt">Connecting…</span></div>
+  <a class="mono" href="/" target="_blank" rel="noopener">Open store ↗</a>
+</header>
+
+<main>
+  <section class="grid g4" aria-label="Key numbers">
+    <div class="card tile is-live"><span class="mono">On the site now</span><b id="kLive">–</b><small>active in the last 20s</small></div>
+    <div class="card tile"><span class="mono">Sessions</span><b id="kSessions">–</b><small id="kVisitors">–</small></div>
+    <div class="card tile"><span class="mono">Avg. time on site</span><b id="kTime">–</b><small>active time, idle excluded</small></div>
+    <div class="card tile"><span class="mono">Clicks</span><b id="kClicks">–</b><small id="kPerSession">–</small></div>
+    <div class="card tile"><span class="mono">Product opens</span><b id="kOpens">–</b><small>detail panel opened</small></div>
+    <div class="card tile"><span class="mono">Rage clicks</span><b id="kRage">–</b><small>3+ fast clicks in one spot</small></div>
+    <div class="card tile"><span class="mono">Dead clicks</span><b id="kDead">–</b><small>clicks that did nothing</small></div>
+    <div class="card tile"><span class="mono">Avg. scroll depth</span><b id="kDepth">–</b><small>how far down people get</small></div>
+  </section>
+
+  <section class="grid g3">
+    <div class="card"><h2>Most clicked</h2><p class="sub muted">Cards, buttons and links</p><div class="bars" id="topClicks"></div></div>
+    <div class="card"><h2>Products opened</h2><p class="sub muted">Detail panel, per product</p><div class="bars" id="topOpens"></div></div>
+    <div class="card"><h2>Products previewed</h2><p class="sub muted">Shown in the 3D stage</p><div class="bars" id="topPreviews"></div></div>
+  </section>
+
+  <section class="grid g2">
+    <div class="card"><h2>Attention by section</h2><p class="sub muted">Time spent while each section was on screen</p><div id="sections"></div></div>
+    <div class="card"><h2>Frustration</h2><p class="sub muted">Where people rage-click or click on things that do nothing</p><div id="frustration"></div></div>
+  </section>
+
+  <section class="card">
+    <h2>Sessions</h2><p class="sub muted">One row per visit, newest first</p>
+    <div class="scroll" id="sessions"></div>
+  </section>
+
+  <section class="card">
+    <h2>Live feed</h2><p class="sub muted">Every click, open, preview and frustration as it arrives</p>
+    <div class="scroll feed" id="feed"></div>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  const SECTION = { hero: '01 Hero · series', feature: '02 Kipride Max', range: '03 Shop the range', kit: '04 Build your kit', reach: '05 Footer', panel: 'Product panel', other: 'Other' };
+  const ORDER = Object.keys(SECTION);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const dur = (ms) => { const s = Math.round(ms / 1000); return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, '0')}s`; };
+  const clock = (ts) => new Date(ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const ago = (ts, now) => { const s = Math.max(0, Math.round(now - ts)); return s < 60 ? `${s}s ago` : s < 3600 ? `${Math.floor(s / 60)}m ago` : clock(ts); };
+  const empty = (msg) => `<p class="empty">${msg}</p>`;
+
+  function bars(rows, fmt = (v) => v) {
+    if (!rows.length) return empty('Nothing yet. Open the store and click around.');
+    const max = Math.max(...rows.map((r) => r[1]));
+    return rows.map(([label, v]) => `
+      <div class="bar" title="${esc(label)}: ${fmt(v)}">
+        <span>${esc(label)}</span><b>${fmt(v)}</b><i style="--w:${(v / max) * 100}%"></i>
+      </div>`).join('');
+  }
+
+  function table(head, rows) {
+    return `<table><thead><tr>${head.map(([h, cls]) => `<th class="${cls || ''}">${h}</th>`).join('')}</tr></thead>
+      <tbody>${rows.join('')}</tbody></table>`;
+  }
+
+  function render(d) {
+    $('liveTxt').textContent = `${d.live} on the site now · updated ${clock(d.now)}`;
+    $('kLive').textContent = d.live;
+    $('kSessions').textContent = d.sessions;
+    $('kVisitors').textContent = `${d.visitors} unique visitor${d.visitors === 1 ? '' : 's'}`;
+    $('kTime').textContent = d.avg_ms ? dur(d.avg_ms) : '–';
+    $('kClicks').textContent = d.clicks;
+    $('kPerSession').textContent = d.sessions ? `${(d.clicks / d.sessions).toFixed(1)} per session` : '–';
+    $('kOpens').textContent = d.opens;
+    $('kRage').textContent = d.rage;
+    $('kDead').textContent = d.dead;
+    const depths = d.session_list.map((s) => s.depth).filter(Boolean);
+    $('kDepth').textContent = depths.length ? `${Math.round(depths.reduce((a, b) => a + b, 0) / depths.length)}%` : '–';
+
+    $('topClicks').innerHTML = bars(d.top_clicks);
+    $('topOpens').innerHTML = bars(d.top_opens);
+    $('topPreviews').innerHTML = bars(d.top_previews);
+
+    const secs = [...d.sections].sort((a, b) => ORDER.indexOf(a[0]) - ORDER.indexOf(b[0]));
+    const reach = (n) => (d.sessions ? `${Math.round((n / d.sessions) * 100)}% reached` : '');
+    $('sections').innerHTML = secs.length
+      ? `<div class="bars">${secs.map(([sec, ms, n]) => `
+          <div class="bar" title="${esc(SECTION[sec] || sec)}: ${dur(ms)} total, ${n} session(s)">
+            <span>${esc(SECTION[sec] || sec)} <span class="muted">· ${reach(n)}</span></span><b>${dur(ms)}</b>
+            <i style="--w:${(ms / Math.max(...secs.map((s) => s[1]))) * 100}%"></i>
+          </div>`).join('')}</div>`
+      : empty('No time recorded yet.');
+
+    const frows = [
+      ...d.rage_list.map((r) => ['rage', ...r]),
+      ...d.dead_list.map((r) => ['dead', ...r]),
+    ].sort((a, b) => b[3] - a[3] || b[4] - a[4]);
+    $('frustration').innerHTML = frows.length
+      ? table([['Type'], ['Element'], ['Section'], ['Count', 'num'], ['Last seen', 'num']], frows.map(([k, label, sec, c, ts]) => `
+          <tr><td><span class="tag ${k}">${k === 'rage' ? 'Rage' : 'Dead'}</span></td><td class="lbl" title="${esc(label)}">${esc(label)}</td>
+          <td>${esc(SECTION[sec] || sec)}</td><td class="num">${c}</td><td class="num muted">${ago(ts, d.now)}</td></tr>`))
+      : empty('No rage or dead clicks. Good sign.');
+
+    $('sessions').innerHTML = d.session_list.length
+      ? table([['Status'], ['Visitor'], ['Device'], ['Started'], ['Time on site', 'num'], ['Clicks', 'num'], ['Opens', 'num'], ['Rage', 'num'], ['Dead', 'num'], ['Scrolled', 'num']],
+          d.session_list.map((s) => `<tr>
+            <td><span class="pill ${s.live ? 'on' : ''}">${s.live ? 'Live' : 'Left ' + ago(s.last, d.now)}</span></td>
+            <td class="mono">${esc(s.vid.slice(0, 6))}</td><td>${esc(s.device || '–')}</td><td>${clock(s.start)}</td>
+            <td class="num">${dur(s.ms)}</td><td class="num">${s.clicks}</td><td class="num">${s.opens}</td>
+            <td class="num">${s.rage}</td><td class="num">${s.dead}</td><td class="num">${s.depth}%</td></tr>`))
+      : empty('No visits yet.');
+
+    $('feed').innerHTML = d.feed.length
+      ? table([['Time'], ['Visitor'], ['Event'], ['What'], ['Where']], d.feed.map(([ts, vid, type, label, sec]) => `
+          <tr><td class="muted">${clock(ts)}</td><td class="mono">${esc(vid.slice(0, 6))}</td><td><span class="tag ${type}">${type}</span></td>
+          <td class="lbl" title="${esc(label)}">${esc(label)}</td><td>${esc(SECTION[sec] || sec || '')}</td></tr>`))
+      : empty('Waiting for the first visitor…');
+  }
+
+  async function poll() {
+    try {
+      const r = await fetch('/api/stats', { cache: 'no-store' });
+      render(await r.json());
+    } catch {
+      $('liveTxt').textContent = 'Collector offline. Start analytics/server.py';
+    }
+    setTimeout(poll, 2000);
+  }
+  poll();
+</script>
+</body>
+</html>

@@ -11,7 +11,6 @@ const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const MOBILE = matchMedia('(max-width: 760px)');
 const $  = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-const pad2 = (n) => String(n).padStart(2, '0');
 
 /* ── catalogue ──────────────────────────────────────────────── */
 const CDN = 'https://contents.mediadecathlon.com/';
@@ -207,7 +206,7 @@ function cutout(src) {
 const imageFor = (p, w = 800) => (p.cat === 'shoes' ? cutout(pic(p.img, w)) : Promise.resolve({ src: pic(p.img, w), cut: false }));
 const decoded = (src) => new Promise((res) => { const im = new Image(); im.onload = im.onerror = () => res(); im.src = src; });
 
-/* ── scramble helper ───────────────────────────────────────────
+/* ── 0. scramble helper ────────────────────────────────────────
    the site drives every bracketed label through GSAP's
    ScrambleTextPlugin; .3s / power2.out is its most common pairing. */
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_/<>[]';
@@ -225,7 +224,7 @@ function initScrambleFX() {
   });
 }
 
-/* ── custom cursor ──────────────────────────────────────────── */
+/* ── 1. custom cursor ───────────────────────────────────────── */
 function initCustomCursor() {
   const c = $('#cursor');
   if (!matchMedia('(hover:hover) and (pointer:fine)').matches) { c.remove(); return; }
@@ -233,35 +232,11 @@ function initCustomCursor() {
   const qy = gsap.quickTo(c, 'y', { duration: 0.3, ease: 'power3.out' });
   addEventListener('pointermove', (e) => { qx(e.clientX); qy(e.clientY); });
   document.addEventListener('pointerover', (e) => {
-    c.classList.toggle('is-hot', !!e.target.closest('a,button,[role="button"],#rangeList li,#panelKitList li'));
+    c.classList.toggle('is-hot', !!e.target.closest('a,button,.range__list li,.kit-card,.hero__series li,.panel__kit li'));
   });
 }
 
-/* ── disclaimer gate ────────────────────────────────────────── */
-function initDisclaimer() {
-  const wrap = $('#disclaimer');
-  const bg = $('#disclaimerBg');
-  const words = ['[LOADING]', 'K', 'I', 'P', 'R', 'U', 'N', 'R', 'U', 'N', 'S', 'T', 'SEASON', '2026', '–', '42K', 'NO.2', '[LOADING]'];
-  for (let i = 0; i < 27; i++) {
-    const d = document.createElement('div');
-    d.className = 'disclaimer__bg-cell';
-    d.textContent = i % 9 === 0 || i % 9 === 8 ? '[LOADING]' : words[i % words.length];
-    bg.appendChild(d);
-  }
-  gsap.fromTo('.disclaimer__content', { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.8, ease: 'expo.out' });
-  gsap.fromTo('.disclaimer__bg-cell', { opacity: 0 }, { opacity: 0.55, duration: 0.3, stagger: 0.012, ease: 'none' });
-
-  $$('.disclaimer [data-mode]').forEach((btn) => btn.addEventListener('click', () => {
-    if (btn.dataset.mode === 'safe') document.body.classList.add('safe-mode');
-    else document.body.classList.add('glitch-on');
-    gsap.timeline({ onComplete: () => { wrap.remove(); runPreloader(); } })
-      .to('.disclaimer__content', { scale: 0.9, opacity: 0, duration: 0.5, ease: 'power2.in' })
-      .to('.disclaimer__bg-cell', { opacity: 0, duration: 0.2, stagger: 0.01, ease: 'none' }, 0.1)
-      .to(wrap, { opacity: 0, duration: 0.3, ease: 'none' }, '-=0.2');
-  }));
-}
-
-/* ── preloader ──────────────────────────────────────────────── */
+/* ── 3. preloader ───────────────────────────────────────────── */
 function buildPreloaderGrid() {
   const grid = $('#preloaderGrid');
   const rows = [
@@ -292,6 +267,7 @@ function runPreloader() {
   imageFor(FEATURE).then(({ src }) => {
     shoe.src = src;
     gsap.fromTo(shoe, { scale: 1.15, opacity: 0, rotate: -8 }, { scale: 1, opacity: 0.95, rotate: 0, duration: 1.2, ease: 'expo.out' });
+    if (!REDUCED) gsap.to(shoe, { y: -14, rotate: 2, duration: 2, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 1.2 });
   });
 
   const ready = () => gsap.to(cta, { opacity: 1, duration: 0.5, ease: 'power2.out', onStart: () => { $('#preloaderMsg').textContent = 'Ready.'; } });
@@ -309,56 +285,22 @@ function runPreloader() {
   setTimeout(() => { if (document.body.contains(pre)) ready(); }, 7000);
 }
 
-/* ── top bar: which section you are in, its theme, and scroll progress ── */
-const SECTIONS = $$('.sec');
-function buildHud() {
-  const hud = $('#hud');
-  $('#hudTotal').textContent = pad2(SECTIONS.length);
-  const setSection = (s, i) => {
-    document.body.dataset.theme = s.dataset.theme;
-    if ($('#hudIdx').dataset.final === pad2(i + 1)) return;
-    setScrambled($('#hudIdx'), pad2(i + 1), 0.3);
-    setScrambled($('#hudLabel'), s.dataset.label, 0.5);
-  };
-  SECTIONS.forEach((s, i) => ScrollTrigger.create({
-    trigger: s, start: 'top 45%', end: 'bottom 45%',
-    onToggle: (self) => { if (self.isActive) setSection(s, i); },
-  }));
-  setSection(SECTIONS[0], 0);
-
-  ScrollTrigger.create({
-    start: 0, end: 'max',
-    onUpdate: (self) => gsap.set('#hudProgress', { scaleX: self.progress }),
-  });
-  // the hero carries its own nav, so the bar only takes over once you leave it
-  ScrollTrigger.create({
-    trigger: '#hero', start: 'bottom 88%',
-    onEnter: () => hud.classList.add('is-on'), onLeaveBack: () => hud.classList.remove('is-on'),
-  });
-}
-
-/* section headers decode and rise once; framed panels fade up */
-function initSectionEntrances() {
-  if (REDUCED) return;
-  $$('.sec-head').forEach((h) => {
-    const tl = gsap.timeline({ scrollTrigger: { trigger: h, start: 'top 85%' } });
-    tl.add(() => $$('.sec-head__idx, .sec-head__label', h).forEach((e) => scramble(e, 0.6)), 0);
-    const title = $('.sec-head__title', h);
-    const split = new SplitText(title, { type: 'words,chars' });
-    tl.fromTo(split.chars, { yPercent: 80, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.7, stagger: 0.018, ease: 'expo.out' }, 0);
-    tl.fromTo($('.sec-head__kicker', h), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0.15);
-  });
-  $$('.window').forEach((w) => gsap.from(w, {
-    y: 50, opacity: 0, duration: 1, ease: 'expo.out',
-    scrollTrigger: { trigger: w, start: 'top 88%' },
-  }));
-}
-
-/* ── 01 hero: the whole series ──────────────────────────────── */
+/* ── 4. hero: the whole series ─────────────────────────────── */
 let heroIndex = 0;
 function buildHero() {
   const slider = $('#heroSlider');
   const list = $('#heroSeries');
+  const ghosts = document.createElement('div');
+  ghosts.className = 'hero__ghosts';
+  ghosts.setAttribute('aria-hidden', 'true');
+  [SERIES[1], SERIES[3], SERIES[4]].forEach((p, k) => {
+    const g = document.createElement('img');
+    g.alt = ''; g.className = 'g' + k;
+    imageFor(p).then(({ src }) => { g.src = src; });
+    ghosts.appendChild(g);
+  });
+  slider.parentNode.insertBefore(ghosts, slider);
+
   SERIES.forEach((p, i) => {
     const s = document.createElement('div');
     s.className = 'slide';
@@ -369,22 +311,26 @@ function buildHero() {
     slider.appendChild(s);
 
     const li = document.createElement('li');
-    li.innerHTML = `<button type="button"><span>${pad2(i + 1)}</span>${p.name}</button>`;
-    li.addEventListener('click', () => goHero(i));
+    li.dataset.track = `Series: ${p.name}`;
+    li.innerHTML = `<span>${String(i + 1).padStart(2, '0')}</span> ${p.name}`;
+    li.addEventListener('click', () => { goHero(i); });
     list.appendChild(li);
   });
   gsap.set('.hero-slider .slide', { opacity: 0 });
   gsap.set('.hero-slider .slide:nth-child(1)', { opacity: 1 });
   list.children[0].classList.add('is-active');
+
+
 }
 
 function goHero(next) {
   const slides = $$('.hero-slider .slide');
   if (next === heroIndex || !slides.length) return;
   gsap.to(slides[heroIndex], { opacity: 0, duration: 0.5, ease: 'power2.inOut' });
-  gsap.fromTo(slides[next], { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.7, ease: 'power2.out' });
+  gsap.fromTo(slides[next], { opacity: 0, scale: 0.92, rotate: -4 }, { opacity: 1, scale: 1, rotate: 0, duration: 0.7, ease: 'power2.out' });
   $$('#heroSeries li').forEach((li, i) => li.classList.toggle('is-active', i === next));
-  setScrambled($('#heroCount'), `Series ${pad2(next + 1)} / ${pad2(SERIES.length)}`, 0.3);
+  setScrambled($('#heroSliderLabel'), SERIES[next].name, 0.3);
+  setScrambled($('#heroCount'), `Series ${String(next + 1).padStart(2, '0')} / ${String(SERIES.length).padStart(2, '0')}`, 0.3);
   heroIndex = next;
 }
 
@@ -394,77 +340,89 @@ function runHeroIntro() {
   gsap.fromTo(title.chars, { yPercent: 115 }, { yPercent: 0, duration: 0.8, stagger: 0.012, ease: 'expo.out' });
   gsap.fromTo('.hero__claim .h-mid', { yPercent: 60, opacity: 0 },
     { yPercent: 0, opacity: 1, duration: 0.8, stagger: 0.04, ease: 'power2.out', delay: 0.1 });
-  gsap.fromTo('.hero__lede, .cc-hero-cta, .hero__series, .hero__foot > *, .hero__nav > *', { opacity: 0, y: 18 },
+  gsap.fromTo('.cc-hero-cta, .hero__series, .hero__foot > *, .hero__nav > *', { opacity: 0, y: 18 },
     { opacity: 1, y: 0, duration: 0.6, stagger: 0.04, ease: 'power2.out', delay: 0.25 });
-  gsap.fromTo('.hero-slider', { opacity: 0, scale: 1.06 }, { opacity: 1, scale: 1, duration: 1, ease: 'expo.out', delay: 0.2 });
-  $$('.cc-hero [data-scramble]').forEach((el, i) => gsap.delayedCall(0.4 + i * 0.06, () => scramble(el, 0.5)));
+  gsap.fromTo('.hero__gallery', { opacity: 0, scale: 1.08 },
+    { opacity: 1, scale: 1, duration: 1, ease: 'expo.out', delay: 0.2 });
+  $$('.hero [data-scramble]').forEach((el, i) => gsap.delayedCall(0.4 + i * 0.06, () => scramble(el, 0.5)));
 }
 
 function initHeroSlider() {
   if (REDUCED || SERIES.length < 2) return;
-  setInterval(() => goHero((heroIndex + 1) % SERIES.length), 3600);
+  setInterval(() => goHero((heroIndex + 1) % SERIES.length), 3200);
 }
 
-/* ── 02 main shoe: one feature per screen, scrubbed by scroll ─── */
-const STEP_LABELS = ['Fit', 'Weight', 'Cushion', 'Buy'];
-/* the shoe turns a little toward each feature; it never bobs */
-const SHOE_POSES = [
-  { rotate: -6, scale: 1,    xPercent: 0,  yPercent: 0 },
-  { rotate: -2, scale: 1.06, xPercent: -3, yPercent: 0 },
-  { rotate: -5, scale: 1.1,  xPercent: 0,  yPercent: 3 },
-  { rotate: -9, scale: 0.98, xPercent: 2,  yPercent: 0 },
-];
+/* ── 5. main shoe: pinned, floating, features call out on scroll ── */
+/* where each callout lands on the shoe, as % of its box: upper/collar, mid-upper, midsole */
+
+/* the three USPs read as a spec bar under the shoe: number, the figure that
+   matters, then the claim — the same data the callout cards carried */
+const FEATURE_METRICS = ['360°', '271 g', '69 %'];
 
 function buildFeature() {
-  const n = FEATURE.usps.length;
-  const chapters = [
-    ...FEATURE.usps.map(([t, p], i) => ({ k: `Feature ${pad2(i + 1)} / ${pad2(n)}`, t, p })),
-    { k: 'Available now', t: inr(FEATURE.price), p: FEATURE.full, cta: true },
-  ];
-  $('#featureChapters').innerHTML = chapters.map((c) => `
-    <article class="chapter">
-      <div class="eyebrow chapter__k">${c.k}</div>
-      <h3 class="chapter__t">${c.t}</h3>
-      <p class="chapter__p">${c.p}</p>
-      ${c.cta ? `<div class="chapter__cta">
-        <a class="button cc-solid" href="${linkFor(FEATURE)}" target="_blank" rel="noopener"><span data-scramble>VIEW ON DECATHLON</span></a>
-        <a class="button" href="#range"><i></i><span data-scramble>SEE THE RANGE</span><i></i></a></div>` : ''}
-    </article>`).join('');
-  $('#featureSteps').innerHTML = STEP_LABELS.map((l, i) => `<li><span>${pad2(i + 1)}</span>${l}</li>`).join('');
-  imageFor(FEATURE, 1000).then(({ src }) => { $('#featureImg').src = src; });
+  $('#featureSpecs').innerHTML = FEATURE.usps.map(([title, text], i) => `
+    <li class="spec" data-i="${i}">
+      <span class="eyebrow spec__n">${String(i + 1).padStart(2, '0')} / ${String(FEATURE.usps.length).padStart(2, '0')}</span>
+      <b class="spec__metric">${FEATURE_METRICS[i] || ''}</b>
+      <span class="spec__title">${title}</span>
+      <p class="spec__text">${text}</p>
+    </li>`).join('');
+  imageFor(FEATURE).then(({ src }) => { $('#featureImg').src = src; $('#featureGhost').src = src; });
+  $('#featurePrice').textContent = inr(FEATURE.price);
+  $('#featureLink').href = linkFor(FEATURE);
 }
 
 function initFeature() {
-  const chapters = $$('.chapter'), steps = $$('#featureSteps li');
-  const setStep = (i) => steps.forEach((s, k) => s.classList.toggle('is-active', k === i));
-  setStep(0);
+  gsap.fromTo('#featureShoe', { scale: 0.88, rotate: -10 }, {
+    scale: 1.12, rotate: 5, ease: 'none',
+    scrollTrigger: { trigger: '.cc-feature', start: 'top top', end: 'bottom bottom', scrub: 1,
+},
+  });
+  if (!REDUCED) gsap.to('.feature__bob', { y: -20, rotate: 1.6, duration: 2.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+  gsap.to('.feature__shadow', { scaleX: 0.82, opacity: 0.6, duration: 2.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+  gsap.to('.feature__ghost', {
+    xPercent: 2, yPercent: -1.5, ease: 'none',
+    scrollTrigger: { trigger: '.cc-feature', start: 'top bottom', end: 'bottom top', scrub: 0 },
+  });
+  gsap.to('.feature__kanji', {
+    yPercent: -16, ease: 'none',
+    scrollTrigger: { trigger: '.cc-feature', start: 'top bottom', end: 'bottom top', scrub: 0 },
+  });
 
-  const mm = gsap.matchMedia();
-  mm.add('(min-width: 761px) and (prefers-reduced-motion: no-preference)', () => {
-    gsap.set(chapters, { autoAlpha: 0, y: 40 });
-    gsap.set(chapters[0], { autoAlpha: 1, y: 0 });
-    gsap.set('#featureShoe', SHOE_POSES[0]);
-    const tl = gsap.timeline({
-      defaults: { ease: 'power2.inOut' },
-      scrollTrigger: {
-        trigger: '#feature', start: 'top top', end: 'bottom bottom', scrub: 1,
-        onUpdate: (self) => setStep(Math.min(chapters.length - 1, Math.floor(self.progress * tl.duration() + 0.2))),
+  const specs = $$('.spec');
+  const setSpec = (i) => specs.forEach((c, k) => c.classList.toggle('is-on', k === i));
+  setSpec(0);
+  if (!REDUCED) {
+    // no entrance tween here: the bar lives in the sticky stage, where a from()
+    // tween can be left at its start state if you jump past the trigger
+    // the words block is pulled up by -100vh, which throws off the trigger's own
+    // progress here, so read how far the pinned stage has travelled directly
+    ScrollTrigger.create({
+      trigger: '.cc-feature', start: 'top top', end: 'bottom bottom',
+      onUpdate: () => {
+        const r = $('.cc-feature').getBoundingClientRect();
+        const travel = Math.max(1, r.height - innerHeight);
+        const p = Math.min(1, Math.max(0, -r.top / travel));
+        setSpec(Math.min(specs.length - 1, Math.floor(p * specs.length)));
       },
     });
-    for (let i = 1; i < chapters.length; i++) {
-      tl.to(chapters[i - 1], { autoAlpha: 0, y: -40, duration: 0.3 }, i - 0.4)
-        .to('#featureShoe', { ...SHOE_POSES[i], duration: 0.8 }, i - 0.5)
-        .fromTo(chapters[i], { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.3 }, i - 0.08);
-    }
-    tl.to({}, { duration: 0.4 });
+  }
+
+  $$('.feature__w').forEach((w) => {
+    gsap.from(w, { opacity: 0, yPercent: 40, duration: 0.8, ease: 'power2.out', scrollTrigger: { trigger: w, start: 'top 92%' } });
   });
-  mm.add('(max-width: 760px), (prefers-reduced-motion: reduce)', () => {
-    gsap.set(chapters, { autoAlpha: 1, y: 0 });
-    gsap.set('#featureShoe', SHOE_POSES[0]);
+  $$('.feature__data i').forEach((d) => {
+    gsap.to(d, { yPercent: -60, ease: 'none', scrollTrigger: { trigger: '.cc-feature', start: 'top bottom', end: 'bottom top', scrub: 0 } });
+    d.dataset.final = d.textContent;
+    ScrollTrigger.create({ trigger: d, start: 'top 85%', onEnter: () => scramble(d, 0.5) });
+  });
+  gsap.from('.feature__buy > *', {
+    opacity: 0, y: 20, duration: 0.6, stagger: 0.08, ease: 'power2.out',
+    scrollTrigger: { trigger: '.feature__buy', start: 'top 90%' },
   });
 }
 
-/* ── 03 range: popping product + list ───────────────────────── */
+/* ── 6. range: popping product + list ───────────────────────── */
 let rangeCat = null, current = null, popTl = null, hoverTimer = 0;
 const listFor = (cat) => (cat === 'shoes' ? SERIES : PRODUCTS.filter((p) => p.cat === cat));
 
@@ -476,7 +434,7 @@ function uspRows(p) {
   return rows;
 }
 const uspHTML = (rows) => rows.map(([t, d], i) =>
-  `<li><span class="eyebrow">${pad2(i + 1)}</span><b>${t}</b><p>${d}</p></li>`).join('');
+  `<li><span class="eyebrow">${String(i + 1).padStart(2, '0')}</span><b>${t}</b><p>${d}</p></li>`).join('');
 
 function buildRange() {
   $('#countShoes').textContent = listFor('shoes').length;
@@ -486,19 +444,24 @@ function buildRange() {
   $$('[data-cat-link]').forEach((a) => a.addEventListener('click', () => setCat(a.dataset.catLink)));
   $('#stageMore').addEventListener('click', () => current && openPanel(current.code));
 
-  // the product tilts toward the pointer; it does not float on its own
   const frame = $('#stageFrame');
   const rx = gsap.quickTo('.stage__tilt', 'rotationX', { duration: 0.6, ease: 'power3.out' });
   const ry = gsap.quickTo('.stage__tilt', 'rotationY', { duration: 0.6, ease: 'power3.out' });
   if (!REDUCED) {
     frame.addEventListener('pointermove', (e) => {
       const r = frame.getBoundingClientRect();
-      ry(((e.clientX - r.left) / r.width - 0.5) * 20);
-      rx(-((e.clientY - r.top) / r.height - 0.5) * 14);
+      ry(((e.clientX - r.left) / r.width - 0.5) * 26);
+      rx(-((e.clientY - r.top) / r.height - 0.5) * 18);
     });
     frame.addEventListener('pointerleave', () => { rx(0); ry(0); });
+    gsap.to('.stage__float', { y: -14, duration: 2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
   }
   setCat('shoes');
+
+  ScrollTrigger.batch('.range__list li', {
+    start: 'top 94%',
+    onEnter: (els) => gsap.from(els, { opacity: 0, yPercent: 30, duration: 0.6, stagger: 0.04, ease: 'power2.out', overwrite: true }),
+  });
 }
 
 function setCat(cat) {
@@ -511,13 +474,13 @@ function setCat(cat) {
   });
   const list = $('#rangeList');
   const items = listFor(cat);
-  setScrambled($('#rangeMeta'), `${pad2(items.length)} ITEMS · ${cat.toUpperCase()}`, 0.5);
   list.innerHTML = items.map((p, i) => `
-    <li data-code="${p.code}" tabindex="0">
-      <span class="list__idx eyebrow">${pad2(i + 1)}</span>
-      <span class="list__thumb"><img src="${pic(p.img, 200)}" alt="" loading="lazy"></span>
-      <span class="list__name">${p.name}<small class="eyebrow">${p.code} · ${p.tag}</small></span>
-      <span class="list__price">${inr(p.price) || '—'}</span>
+    <li class="pcard" data-code="${p.code}" data-track="Range: ${p.name}" tabindex="0">
+      <span class="pcard__n eyebrow">${String(i + 1).padStart(2, '0')}</span>
+      <span class="pcard__img"><img src="${pic(p.img, 400)}" alt="" loading="lazy"></span>
+      <span class="pcard__tag eyebrow">${p.tag}</span>
+      <span class="pcard__name">${p.name}</span>
+      <span class="pcard__foot"><b>${inr(p.price) || 'On decathlon.in'}</b><i class="eyebrow">${p.code}</i></span>
     </li>`).join('');
   $$('li', list).forEach((li) => {
     const p = byCode[li.dataset.code];
@@ -526,7 +489,7 @@ function setCat(cat) {
     li.addEventListener('click', () => { showProduct(p); openPanel(p.code); });
     li.addEventListener('keydown', (e) => { if (e.key === 'Enter') openPanel(p.code); });
   });
-  gsap.fromTo('#rangeList li', { opacity: 0, x: 24 }, { opacity: 1, x: 0, duration: 0.45, stagger: 0.035, ease: 'power2.out' });
+  gsap.fromTo('#rangeList li', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'power2.out' });
   current = null;
   showProduct(items[0]);
   items.forEach((p) => imageFor(p));   // warm the cut-outs so hovering stays instant
@@ -534,7 +497,7 @@ function setCat(cat) {
 }
 
 /* the "3D pop": the product spins out of the frame and the next one
-   springs in from depth, then follows the pointer */
+   springs in from depth, then keeps floating and follows the pointer */
 async function showProduct(p) {
   if (!p || current === p) return;
   current = p;
@@ -542,6 +505,7 @@ async function showProduct(p) {
   const { src } = await imageFor(p);
   await decoded(src);
   if (current !== p) return;              // the pointer has already moved on
+  window.kt?.('preview', p.name);
 
   const shoe = p.cat === 'shoes';
   const pop = $('#stagePop'), im = $('#stageImg');
@@ -569,7 +533,7 @@ async function showProduct(p) {
     .fromTo('#stageName', { yPercent: 40, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.5, ease: 'expo.out' }, '<');
 }
 
-/* ── product detail (with the rest of its kit, this item pinned first) ── */
+/* ── 7. product detail (with the rest of its kit, this item pinned first) ── */
 function openPanel(code, kit) {
   const p = byCode[code];
   if (!p) return;
@@ -593,7 +557,7 @@ function openPanel(code, kit) {
     $('#panelKitTitle').textContent = `${kit.label} kit · ${order.length} pieces`;
     $('#panelKitList').innerHTML = order.map((c, i) => {
       const k = byCode[c];
-      return `<li data-code="${c}" class="${i === 0 ? 'is-pinned' : ''}" tabindex="0">
+      return `<li data-code="${c}" data-track="Panel kit: ${k.name}" class="${i === 0 ? 'is-pinned' : ''}" tabindex="0">
         <img src="${pic(k.img, 300)}" alt="">
         <span class="eyebrow">${i === 0 ? 'Pinned · ' : ''}${c}</span>
         <span>${k.name}</span></li>`;
@@ -605,11 +569,12 @@ function openPanel(code, kit) {
     });
   }
 
+  window.kt?.('open', `${p.name} · ${p.code}`);
   const wasOpen = !panel.hidden;
   panel.hidden = false;
   lockScroll(true);
-  if (!wasOpen) gsap.fromTo(panel, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power2.out' });
-  gsap.fromTo('.panel__img', { scale: 0.96, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: 'expo.out' });
+  if (!wasOpen) gsap.fromTo(panel, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'none' });
+  gsap.fromTo('.panel__img', { scale: 0.94, opacity: 0, rotationY: 20 }, { scale: 1, opacity: 1, rotationY: 0, duration: 0.8, ease: 'expo.out' });
   gsap.fromTo('.panel__body > *:not([hidden])', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'power2.out' });
   scramble($('#panelCode'), 0.5);
   $('#panelClose').focus({ preventScroll: true });
@@ -626,21 +591,35 @@ function closePanel() {
   gsap.to(panel, { opacity: 0, duration: 0.25, ease: 'none', onComplete: () => { panel.hidden = true; } });
 }
 
-/* ── 04 breaker: sticky circles + scramble + reversing marquee ─ */
+/* ── 8. breaker: sticky circles + scramble + reversing marquee ─ */
 function initBreaker() {
   const A = $('#circleA'), B = $('#circleB');
+  // three copies of the text: base (blue on white), one clipped to the blue circle (white),
+  // one clipped to the closing white circle (blue again), so it always reads
+  const base = $('.breaker__inner');
+  const onA = base.cloneNode(true), onB = base.cloneNode(true);
+  onA.classList.add('is-on-a'); onB.classList.add('is-on-b');
+  [onA, onB].forEach((n) => n.setAttribute('aria-hidden', 'true'));
+  base.after(onA, onB);
+  // circle scale 1.25 of a 100vmax disc = a 62.5vmax radius
   gsap.timeline({
     scrollTrigger: { trigger: '.cc-breaker', start: 'top top', end: 'bottom bottom', scrub: 1 },
   })
     .fromTo(A, { scale: 0 }, { scale: 1.25, ease: 'none', duration: 1 })
+    .fromTo(onA, { clipPath: 'circle(0vmax at 50% 50%)' }, { clipPath: 'circle(62.5vmax at 50% 50%)', ease: 'none', duration: 1 }, 0)
     .fromTo(B, { scale: 0 }, { scale: 1.25, ease: 'none', duration: 1 }, 1)
-    .fromTo('.breaker__kanji', { scale: 0.8, letterSpacing: '0.16em' }, { scale: 1.05, letterSpacing: '-0.04em', ease: 'none', duration: 2 }, 0);
+    .fromTo(onB, { clipPath: 'circle(0vmax at 50% 50%)' }, { clipPath: 'circle(62.5vmax at 50% 50%)', ease: 'none', duration: 1 }, 1);
 
-  const words = $$('.breaker__row [data-word]');
-  words.forEach((w) => (w.dataset.final = w.textContent));
-  ScrollTrigger.create({
-    trigger: '.cc-breaker', start: 'top 60%',
-    onEnter: () => words.forEach((w, i) => gsap.delayedCall(i * 0.04, () => scramble(w, 0.7))),
+  // every copy's words rise in the same order, so the layers stay in register
+  const rows = $$('.breaker__inner');
+  const perLayer = $$('[data-word]', base).length;
+  gsap.from(rows.flatMap((r) => $$('[data-word]', r)), {
+    opacity: 0, y: 12, duration: 0.6, ease: 'power2.out', stagger: (i) => (i % perLayer) * 0.04,
+    scrollTrigger: { trigger: '.cc-breaker', start: 'top 60%' },
+  });
+  gsap.from(rows.map((r) => $('.breaker__kanji', r)), {
+    scale: 0.8, opacity: 0, duration: 1.2, ease: 'expo.out',
+    scrollTrigger: { trigger: '.cc-breaker', start: 'top 70%' },
   });
   initMarqueeScrollDirection();
 }
@@ -684,13 +663,14 @@ function initMarqueeScrollDirection() {
   });
 }
 
-/* ── 05 kit builder: the panoplies ──────────────────────────── */
+/* ── 9. kit builder: the panoplies ──────────────────────────── */
 const kitState = { who: 'man', day: 'practice', top: 0 };
 const currentKit = () => KITS.find((k) => k.who === kitState.who && k.day === kitState.day);
 
 function kitCard(role, code, extra = '') {
   const p = byCode[code];
-  return `<div class="kit-card" role="button" tabindex="0" data-code="${code}">
+  return `<div class="kit-card" role="button" tabindex="0" data-code="${code}" data-track="Kit: ${p.name}">
+    <b></b><b></b><i></i><i></i>
     <span class="kit-card__role eyebrow">${role}</span>
     <span class="kit-card__img"><img src="${pic(p.img, 600)}" alt="${p.full}"></span>
     <span class="kit-card__name">${p.name}</span>
@@ -705,8 +685,8 @@ function renderKit(animate = true) {
   const swap = k.tops.length > 1
     ? `<button class="kit-card__swap button cc-sm" aria-label="Show the other top"><span>${(kitState.top % k.tops.length) + 1}/${k.tops.length} ↻</span></button>`
     : '';
-  $('#kitLeft').innerHTML = kitCard('01 · Shoes', k.shoes);
-  $('#kitRight').innerHTML = kitCard('02 · Top', topCode, swap) + kitCard('03 · Shorts', k.shorts);
+  $('#kitLeft').innerHTML = kitCard('Shoes', k.shoes);
+  $('#kitRight').innerHTML = kitCard('Top', topCode, swap) + kitCard('Shorts', k.shorts);
 
   $$('.kit-card').forEach((card) => {
     const go = () => openPanel(card.dataset.code, k);
@@ -726,13 +706,14 @@ function renderKit(animate = true) {
   $('#kitTotal').textContent = known.length === pieces.length ? inr(sum) : `${inr(sum)}+`;
   setScrambled($('#kitStatus'), `>_${kitState.who}_${kitState.day}_day_kit`.toUpperCase(), 0.6);
   setScrambled($('#kitModels'), kitCodes(k).join(' · '), 0.6);
+  const note = $('#kitNote');
   const flagged = pieces.find((p) => p.note);
-  $('#kitNote').textContent = flagged
-    ? `Shoes: ${flagged.note}`
-    : k.tops.length > 1 ? `Two tops in this kit (${k.tops.join(' / ')}): use ↻ to switch.` : 'Shoes, top and shorts, picked to work together.';
+  note.hidden = !flagged && k.tops.length < 2;
+  note.textContent = flagged ? `+ shoes: ${flagged.note}` : (k.tops.length > 1 ? `Two tops in this kit: ${k.tops.join(' / ')}` : '');
 
   if (animate && !REDUCED) {
-    gsap.fromTo('.kit-card', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: 'expo.out' });
+    gsap.fromTo('.kit-card', { opacity: 0, y: 30, rotationX: -18 },
+      { opacity: 1, y: 0, rotationX: 0, duration: 0.7, stagger: 0.09, ease: 'back.out(1.4)', transformPerspective: 900 });
     gsap.fromTo('#kitBar', { width: '0%' }, { width: '100%', duration: 0.9, ease: 'power2.out' });
   } else {
     gsap.set('#kitBar', { width: '100%' });
@@ -756,35 +737,33 @@ function buildKit() {
   });
   $('#kitShop').addEventListener('click', () => { const k = currentKit(); openPanel(k.shoes, k); });
   renderKit(false);
-  ScrollTrigger.create({ trigger: '#kit .window', start: 'top 70%', once: true, onEnter: () => renderKit(true) });
+
+  // the section scales and blurs into focus, like the live build
+  gsap.fromTo('.kit__grid',
+    { scale: 1.12, filter: 'blur(14px)', opacity: 0.35 },
+    { scale: 1, filter: 'blur(0px)', opacity: 1, ease: 'none',
+      scrollTrigger: { trigger: '.cc-kit', start: 'top bottom', end: 'top 20%', scrub: true } });
+  gsap.to('.kit__crest', {
+    rotate: 18, ease: 'none',
+    scrollTrigger: { trigger: '.cc-kit', start: 'top bottom', end: 'bottom top', scrub: 1 },
+  });
+  ScrollTrigger.create({ trigger: '.cc-kit', start: 'top 60%', once: true, onEnter: () => renderKit(true) });
 }
 
-/* ── 06 footer ──────────────────────────────────────────────── */
-function initFooter() {
-  if (REDUCED) return;
+/* ── 10. footer scale transition ────────────────────────────── */
+function initFooterScaleTransition() {
+  gsap.fromTo('.footer',
+    { yPercent: 12, scale: 0.94 },
+    { yPercent: 0, scale: 1, ease: 'none',
+      scrollTrigger: { trigger: '.cc-footer', start: 'top bottom', end: 'top 20%', scrub: true } });
   gsap.from('.footer__wordmark span', {
     yPercent: 60, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'expo.out',
     scrollTrigger: { trigger: '.footer__wordmark', start: 'top 95%' },
   });
 }
 
-/* ── glitch ─────────────────────────────────────────────────── */
-function initGlitchEffects() {
-  $$('[data-glitch]').forEach((el) => {
-    el.dataset.text = el.textContent;
-    const fire = () => {
-      if (!document.body.classList.contains('glitch-on') || REDUCED) return;
-      el.classList.add('is-glitching');
-      gsap.to(el, { x: gsap.utils.random(-3, 3), duration: 0.06, repeat: 3, yoyo: true, ease: 'none',
-        onComplete: () => { gsap.set(el, { x: 0 }); el.classList.remove('is-glitching'); } });
-    };
-    el.addEventListener('mouseenter', fire);
-    const loop = () => { fire(); gsap.delayedCall(gsap.utils.random(2.5, 7), loop); };
-    gsap.delayedCall(gsap.utils.random(1, 5), loop);
-  });
-}
 
-/* ── lenis smooth scroll ────────────────────────────────────── */
+/* ── 12. lenis smooth scroll ────────────────────────────────── */
 let lenis = null;
 function initLenis() {
   if (REDUCED || typeof Lenis === 'undefined') return;
@@ -797,15 +776,13 @@ function initLenis() {
     const target = $(a.getAttribute('href'));
     if (!target) return;
     e.preventDefault();
-    if (!$('#panel').hidden) closePanel();
-    lenis.scrollTo(target, { offset: 0, duration: 1.6 });
+    lenis.scrollTo(target, { offset: 0, duration: 1.4 });
   }));
 }
 
 /* ── boot ───────────────────────────────────────────────────── */
-[...SERIES, byCode['8960640']].forEach((p) => imageFor(p));   // start cutting shoes while the gate is up
+[...SERIES, byCode['8960640']].forEach((p) => imageFor(p));   // start cutting shoes while the loader is up
 buildPreloaderGrid();
-buildHud();
 buildHero();
 buildFeature();
 buildRange();
@@ -813,14 +790,12 @@ buildKit();
 initScrambleFX();
 initCustomCursor();
 initLenis();
-initSectionEntrances();
 initFeature();
 initBreaker();
-initFooter();
-initGlitchEffects();
+initFooterScaleTransition();
 initHeroSlider();
 $('#panelClose').addEventListener('click', closePanel);
 $('#panel').addEventListener('click', (e) => { if (e.target.id === 'panel') closePanel(); });
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#panel').hidden) closePanel(); });
-initDisclaimer();
+runPreloader();
 addEventListener('load', () => ScrollTrigger.refresh());
