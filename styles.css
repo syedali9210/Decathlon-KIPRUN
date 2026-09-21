@@ -986,3 +986,9 @@ body{background:#fff}
   .hero__title .hero__kiprun{width:36%;margin:calc(var(--sf) * .7) 0 0}
   .breaker__label .logo{width:calc(var(--sf) * 6.5)}
 }
+
+/* film: cross-fade between clips, and a lighter scrim now there is no caption to hold */
+.film__video{transition:opacity .6s ease}
+.film__scrim{background:linear-gradient(to bottom,rgba(14,19,48,.3),transparent 22%,transparent 78%,rgba(14,19,48,.35))}
+/* nav is just logo + pills now */
+.hero__nav{grid-template-columns:1fr auto}

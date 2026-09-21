@@ -3,7 +3,7 @@
 <title>KIPRUN Run Store | Shoes, Apparel &amp; Accessories</title>
 <meta name="description" content="KIPRUN by Decathlon: five shoe series, practice and race-day kits, and the accessories to match.">
 <link rel="preconnect" href="https://contents.mediadecathlon.com" crossorigin>
-<link rel="stylesheet" href="styles.css?v=30">
+<link rel="stylesheet" href="styles.css?v=32">
 
 <!-- ═══ custom cursor ═══ -->
 <div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__ring"></span></div>
@@ -28,7 +28,6 @@
     <div class="hero__component">
       <nav class="hero__nav" aria-label="Store">
         <a class="hero__logo" href="#top" aria-label="Decathlon, back to top"><svg class="logo logo--dkt" viewBox="0 0 188 28" aria-hidden="true"><use href="#logo-decathlon"/></svg></a>
-        <span class="hero__mark eyebrow" aria-hidden="true">Run store</span>
         <div class="hero__coords eyebrow">
           <a href="#feature" data-track="Nav: Kipride Max">Kipride Max</a>
           <a href="#range" data-track="Nav: Range">Range</a>
@@ -64,25 +63,21 @@
     <div class="film__sticky">
       <div class="film__frame" id="filmFrame">
         <video class="film__video is-on" data-i="0"
-          poster="assets/video/kipride-beige.jpg" src="assets/video/kipride-beige.mp4"
-          muted loop playsinline preload="auto"
+          data-land="assets/video/kipride-beige" data-port="assets/video/kipride-beige-p"
+          muted loop playsinline preload="none"
           aria-label="Kipride Max in beige, filmed on a city run"></video>
         <video class="film__video" data-i="1"
-          poster="assets/video/kipride-cobalt.jpg" src="assets/video/kipride-cobalt.mp4"
+          data-land="assets/video/kipride-cobalt" data-port="assets/video/kipride-cobalt-p"
           muted loop playsinline preload="none"
           aria-label="Kipride Max in cobalt blue, filmed on a city run"></video>
         <video class="film__video" data-i="2"
-          poster="assets/video/kipride-teal.jpg" src="assets/video/kipride-teal.mp4"
+          data-land="assets/video/kipride-teal" data-port="assets/video/kipride-teal-p"
           muted loop playsinline preload="none"
           aria-label="Kipride Max in teal blue, filmed on a city run"></video>
         <div class="film__scrim" aria-hidden="true"></div>
 
         <div class="film__ui">
           <div class="eyebrow film__eyebrow">&gt;_ON_THE_ROAD</div>
-          <div class="film__cap">
-            <b class="film__name" id="filmName">Beige</b>
-            <i class="eyebrow film__meta" id="filmMeta">AW26 · 8990049</i>
-          </div>
           <ol class="film__dots" id="filmDots">
           <li class="is-on"><button type="button" data-i="0" data-track="Film: Beige"><span class="sr-only">Beige</span></button></li>
           <li><button type="button" data-i="1" data-track="Film: Cobalt Blue"><span class="sr-only">Cobalt Blue</span></button></li>
@@ -306,4 +301,4 @@
 <script src="vendor/SplitText.min.js"></script>
 <script src="vendor/ScrambleTextPlugin.min.js"></script>
 <script src="vendor/lenis.min.js"></script>
-<script src="main.js?v=30"></script>
+<script src="main.js?v=32"></script>

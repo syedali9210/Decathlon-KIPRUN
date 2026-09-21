@@ -267,7 +267,7 @@ function runPreloader() {
   };
   if (REDUCED) { done(); return; }
 
-  const tl = gsap.timeline({ onComplete: done });
+  const tl = gsap.timeline({ onComplete: done, paused: true });
   gsap.set(shots[0], { autoAlpha: 1 });
   gsap.set(reel, { scale: 1.12 });
   // hard cuts, like a reel
@@ -277,8 +277,6 @@ function runPreloader() {
   const reelEnd = shots.length * REEL_CUT;
   tl.to(reel, { scale: 1, ease: 'none', duration: reelEnd }, 0)
     .to('#plBar', { width: '100%', ease: 'none', duration: reelEnd + 0.5 }, 0)
-    // zoom out into a card
-    .to([reel, '.pl__scrim'], { scale: 0.46, borderRadius: 10, duration: 0.7, ease: 'expo.inOut' }, reelEnd)
     .to('.pl__scrim', { opacity: 1, duration: 0.5 }, reelEnd + 0.15)
     // DECATHLON over KIPRUN rises on the card, holds, then leaves
     .fromTo('#plLogo', { autoAlpha: 0, y: 38 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'expo.out' }, reelEnd + 0.45)
@@ -287,7 +285,23 @@ function runPreloader() {
     // and the panel hands over to the hero
     .to(pre, { yPercent: -100, duration: 0.9, ease: 'expo.inOut' }, reelEnd + 1.75);
 
-  const skip = () => tl.timeScale(6);
+  // zoom out into a card. Scaling the full-screen reel keeps the screen's shape, which on a
+  // phone is a 180px sliver the logos spill out of, so portrait screens clip to a 4:5 card
+  if (innerHeight > innerWidth) {
+    const cw = Math.round(innerWidth * 0.8), ch = Math.round(Math.min(innerHeight * 0.62, cw * 1.25));
+    const x = Math.round((innerWidth - cw) / 2), y = Math.round((innerHeight - ch) / 2);
+    tl.fromTo([reel, '.pl__scrim'], { clipPath: 'inset(0px 0px 0px 0px round 0px)' },
+      { clipPath: `inset(${y}px ${x}px ${y}px ${x}px round 10px)`, duration: 0.7, ease: 'expo.inOut' }, reelEnd);
+  } else {
+    tl.to([reel, '.pl__scrim'], { scale: 0.46, borderRadius: 10, duration: 0.7, ease: 'expo.inOut' }, reelEnd);
+  }
+
+  // hold the first cut until the reel can paint: on mobile data it used to flick through blank frames.
+  // capped, so a slow link still gets into the site
+  const ready = Promise.all(shots.map((im) => (im.decode ? im.decode().catch(() => {}) : null)));
+  Promise.race([ready, new Promise((r) => setTimeout(r, 3000))]).then(() => tl.play());
+
+  const skip = () => { tl.play(); tl.timeScale(6); };
   $('#plSkip').addEventListener('click', skip);
   pre.addEventListener('click', skip);
 }
@@ -353,27 +367,22 @@ function initHeroSlider() {
 }
 
 /* ── 4b. film: the clip opens out of the hero, then cuts colourway ── */
-const FILM = [['Beige', 'AW26 · 8990049'], ['Cobalt Blue', 'AW26 · 8960618'], ['Teal Blue', 'SS26 · 8960547']];
 let filmIndex = 0;
+// portrait screens get the 9:16 cuts: a 16:9 clip covered onto a phone used a 405px sliver of it
+const PORTRAIT = matchMedia('(max-aspect-ratio: 1/1)');
+const filmSrc = (v) => (PORTRAIT.matches ? v.dataset.port : v.dataset.land);
 
 function setFilm(next) {
   if (next === filmIndex) return;
   const vids = $$('.film__video');
-  const frame = $('#filmFrame');
   vids[filmIndex].pause();
   vids[filmIndex].classList.remove('is-on');
   const v = vids[next];
   v.preload = 'auto';
-  v.classList.add('is-on');
+  v.classList.add('is-on');                       // a plain cross-fade: no glitch on the footage
   v.currentTime = 0;
   if (!REDUCED) v.play().catch(() => {});
-  frame.classList.remove('is-glitch');
-  void frame.offsetWidth;                        // restart the keyframes
-  frame.classList.add('is-glitch');
-  gsap.delayedCall(0.34, () => frame.classList.remove('is-glitch'));
   $$('#filmDots li').forEach((li, i) => li.classList.toggle('is-on', i === next));
-  setScrambled($('#filmName'), FILM[next][0], 0.3);
-  setScrambled($('#filmMeta'), FILM[next][1], 0.3);
   filmIndex = next;
 }
 
@@ -381,7 +390,17 @@ function initFilm() {
   const frame = $('#filmFrame');
   if (!frame) return;
   const vids = $$('.film__video');
+  const load = () => vids.forEach((v, i) => {
+    const base = filmSrc(v);
+    if (v.dataset.base === base) return;
+    v.dataset.base = base;
+    v.poster = base + '.jpg';
+    v.src = base + '.mp4';
+    if (i === filmIndex) { v.preload = 'auto'; if (!REDUCED) v.play().catch(() => {}); }
+  });
   vids.forEach((v) => { v.muted = true; });
+  load();
+  PORTRAIT.addEventListener('change', load);
 
   // only run while the section is on screen, so three clips never decode at once
   new IntersectionObserver((entries) => entries.forEach((e) => {
@@ -408,7 +427,7 @@ function initFilm() {
     onUpdate: (self) => {
       if (self.progress < 0.3) return setFilm(0);
       const p = (self.progress - 0.3) / 0.7;
-      setFilm(Math.min(FILM.length - 1, Math.floor(p * FILM.length)));
+      setFilm(Math.min(vids.length - 1, Math.floor(p * vids.length)));
     },
   });
 }
