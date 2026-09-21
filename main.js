@@ -354,6 +354,9 @@ function runHeroIntro() {
   if (REDUCED) return;
   // the lockup is two svg marks now, so they rise as whole shapes
   gsap.fromTo('.hero__title .logo', { yPercent: 30, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.9, stagger: 0.1, ease: 'expo.out' });
+  gsap.fromTo('.hero__title .lockup__tag', { autoAlpha: 0, y: 8 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out', delay: 0.35 });
+  gsap.fromTo('.hero__kiprun .sel', { clipPath: 'inset(-8px 100% 100% -8px)' },
+    { clipPath: 'inset(-8px -8px -8px -8px)', duration: 1.1, ease: 'expo.inOut', delay: 0.55 });
   gsap.fromTo('.hero__caption', { y: 24, opacity: 0 },
     { y: 0, opacity: 0.75, duration: 0.8, ease: 'power2.out', delay: 0.1 });
   gsap.fromTo('.cc-hero-cta, .hero__series, .hero__foot > *, .hero__nav > *', { opacity: 0, y: 18 },
@@ -370,6 +373,8 @@ function initHeroSlider() {
 
 /* ── 4b. film: the clip opens out of the hero, then cuts colourway ── */
 let filmIndex = 0;
+// the closed card leans right like the KIPRUN letterforms (identity: slanted photo panels)
+const FILM_CARD = () => (MOBILE.matches ? 'polygon(18% 12%, 94% 12%, 82% 88%, 6% 88%)' : 'polygon(30% 15%, 80% 15%, 70% 85%, 20% 85%)');
 // portrait screens get the 9:16 cuts: a 16:9 clip covered onto a phone used a 405px sliver of it
 const PORTRAIT = matchMedia('(max-aspect-ratio: 1/1)');
 const filmSrc = (v) => (PORTRAIT.matches ? v.dataset.port : v.dataset.land);
@@ -419,7 +424,7 @@ function initFilm() {
 
   // the frame opens from a centred card to full bleed over the first screen of scroll
   gsap.timeline({ scrollTrigger: { trigger: '#film', start: 'top top', end: '+=70%', scrub: 0.6 } })
-    .fromTo(frame, { clipPath: 'inset(15% 26% 15% 26%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none' })
+    .fromTo(frame, { clipPath: FILM_CARD() }, { clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)', ease: 'none' })
     .fromTo(vids, { scale: 1.12 }, { scale: 1, ease: 'none' }, 0)
     .fromTo('.film__ui', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.4 }, 0.4);
 
@@ -542,8 +547,11 @@ function initFeatureGl(src) {
     force = Math.min(1, force + 0.35);
   }, { passive: true });
 
+  const hud = $('#hudFrame');
+  let hudN = 0;
   const frame = () => {
     raf = requestAnimationFrame(frame);
+    if (hud && !(++hudN % 2)) hud.textContent = String((hudN >> 1) % 1000).padStart(3, '0');
     size();
     force *= 0.96;
     gl.uniform2f(uMouse, mx, my);
@@ -800,6 +808,14 @@ function initBreaker() {
     scale: 0.8, opacity: 0, duration: 1.2, ease: 'expo.out',
     scrollTrigger: { trigger: '.cc-breaker', start: 'top 70%' },
   });
+  const route = $('#routePath'), km = $('#routeKm');
+  if (route) {
+    gsap.fromTo(route, { strokeDashoffset: 1 }, {
+      strokeDashoffset: 0, ease: 'none',
+      scrollTrigger: { trigger: '.cc-breaker', start: 'top top', end: 'bottom bottom', scrub: 1,
+        onUpdate: (self) => { km.textContent = (42.195 * self.progress).toFixed(3); } },
+    });
+  }
   initMarqueeScrollDirection();
 }
 
@@ -961,6 +977,10 @@ function initLenis() {
 
 /* ── boot ───────────────────────────────────────────────────── */
 [...SERIES, byCode['8960640']].forEach((p) => imageFor(p, 1600));   // same width the hero asks for, so the cut is reused
+$$('[data-ticker]').forEach((t) => {
+  const item = `<span>${t.dataset.ticker}</span><i>✦</i>`;
+  t.innerHTML = item.repeat(14) + item.repeat(14);
+});
 buildHero();
 buildFeature();
 buildRange();

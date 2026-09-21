@@ -3,7 +3,7 @@
 <title>KIPRUN Run Store | Shoes, Apparel &amp; Accessories</title>
 <meta name="description" content="KIPRUN by Decathlon: five shoe series, practice and race-day kits, and the accessories to match.">
 <link rel="preconnect" href="https://contents.mediadecathlon.com" crossorigin>
-<link rel="stylesheet" href="styles.css?v=36">
+<link rel="stylesheet" href="styles.css?v=40">
 
 <!-- ═══ custom cursor ═══ -->
 <div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__ring"></span></div>
@@ -15,6 +15,7 @@
   <div class="pl__logo" id="plLogo" aria-hidden="true">
     <svg class="logo logo--dkt pl__over" viewBox="0 0 188 28" role="img" aria-label="Decathlon"><use href="#logo-decathlon"/></svg>
     <svg class="logo logo--kiprun pl__word" viewBox="0 0 153 23" role="img" aria-label="Kiprun"><use href="#logo-kiprun"/></svg>
+    <span class="lockup__tag pl__tag">more runs · more life</span>
   </div>
   <div class="pl__bar" aria-hidden="true"><span id="plBar"></span></div>
   <button class="pl__skip eyebrow" id="plSkip" type="button">Skip</button>
@@ -26,6 +27,7 @@
   <!-- ─── 1. hero: about KIPRUN + the whole series ─── -->
   <section class="section cc-hero" id="hero">
     <div class="hero__component">
+      <div class="ticker" aria-hidden="true"><div class="ticker__track" data-ticker="more runs · more life"></div></div>
       <nav class="hero__nav" aria-label="Store">
         <a class="hero__logo" href="#top" aria-label="Decathlon, back to top"><svg class="logo logo--dkt" viewBox="0 0 188 28" aria-hidden="true"><use href="#logo-decathlon"/></svg></a>
         <div class="hero__coords eyebrow">
@@ -39,7 +41,7 @@
         <h1 class="h-display hero__title" id="hero-title">
           <span class="sr-only">Decathlon Kiprun</span>
           <svg class="logo logo--dkt hero__dkt" viewBox="0 0 147.45 20.4" aria-hidden="true"><use href="#logo-decathlon-word"/></svg>
-          <svg class="logo logo--kiprun hero__kiprun" viewBox="0 0 153 23" aria-hidden="true"><use href="#logo-kiprun"/></svg>
+          <span class="lockup hero__kiprun"><svg class="logo logo--kiprun" viewBox="0 0 153 23" aria-hidden="true"><use href="#logo-kiprun"/></svg><span class="lockup__tag">more runs · more life</span><i class="sel" aria-hidden="true"><b></b><b></b><b></b><b></b></i></span>
         </h1>
 
         <div class="hero__gallery" id="heroGallery">
@@ -92,7 +94,9 @@
   <section class="section cc-feature u-tech" id="feature">
     <h2 class="sr-only">Kipride Max: comfort anywhere, anytime</h2>
     <div class="feature__sticky">
+      <div class="feature__topo" aria-hidden="true"></div>
       <div class="feature__kanji" aria-hidden="true">MAX</div>
+      <div class="feature__hud eyebrow" aria-hidden="true"><span>SCAN [ON]</span><span>FRAME <b id="hudFrame">000</b> · FPS 30</span><span>KIPRIDE MAX // 8960547</span></div>
       <div class="feature__stage" id="featureStage">
         <div class="feature__shoe" id="featureShoe">
           <div class="feature__bob">
@@ -100,6 +104,7 @@
             <canvas id="featureGl" aria-hidden="true"></canvas>
           </div>
           <span class="feature__shadow" aria-hidden="true"></span>
+          <i class="sel sel--shoe" aria-hidden="true"><b></b><b></b><b></b><b></b></i>
         </div>
       </div>
       <ol class="feature__specs" id="featureSpecs"></ol>
@@ -162,6 +167,8 @@
   <!-- ─── 4. breaker ─── -->
   <section class="section cc-breaker" id="breaker">
     <div class="breaker">
+      <svg class="breaker__route" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true"><path id="routePath" pathLength="1" d="M-0 246 L18 236 L37 230 L54 216 L71 205 L87 193 L101 177 L115 162 L129 146 L142 130 L156 120 L169 120 L183 120 L200 120 L215 120 L228 120 L244 120 L263 120 L283 120 L302 120 L322 124 L342 120 L362 121 L381 120 L400 120 L416 120 L430 120 L448 120 L464 120 L481 120 L500 120 L517 120 L536 120 L551 120 L564 120 L578 120 L594 120 L610 120 L625 120 L641 120 L658 120 L673 120 L691 120 L711 120 L729 120 L748 120 L767 120 L787 124 L807 132 L827 134 L845 146 L865 148 L885 147 L904 152 L924 148 L944 143 L962 128 L981 120 L1001 120 L1021 120"/></svg>
+      <div class="breaker__hud eyebrow" aria-hidden="true"><span>Distance</span><b><span id="routeKm">0.000</span> km</b></div>
       <div class="breaker__bg" aria-hidden="true">
         <span class="breaker__bg-circle" id="circleA"></span>
         <span class="breaker__bg-circle cc-dark" id="circleB"></span>
@@ -231,7 +238,7 @@
     <div class="footer">
       <div class="footer__top">
         <div class="eyebrow">42.195 KM</div>
-        <div class="eyebrow">Run store · India</div>
+        <span class="bydkt"><span>BY</span><svg class="logo logo--dkt" viewBox="0 0 188 28" role="img" aria-label="Decathlon"><use href="#logo-decathlon"/></svg></span>
       </div>
       <div class="footer__cols">
         <p class="p-l">KIPRUN is Decathlon's running brand: five shoe series, the kits to train and race in, and the accessories that carry everything else.</p>
@@ -243,7 +250,7 @@
         <div class="eyebrow footer__meta">2026<br><a href="https://www.decathlon.in" target="_blank" rel="noopener">decathlon.in ↗</a></div>
       </div>
       <div class="footer__strip" id="footerStrip" aria-hidden="true"><div class="footer__strip-track" id="footerStripTrack"></div></div>
-      <h2 class="h-display footer__wordmark"><span class="w-solid footer__mark"><svg class="logo logo--kiprun" viewBox="0 0 153 23" role="img" aria-label="Kiprun"><use href="#logo-kiprun"/></svg></span><span class="u-text-outline">STORE</span></h2>
+      <h2 class="h-display footer__wordmark"><span class="w-solid footer__mark"><svg class="logo logo--kiprun" viewBox="0 0 153 23" role="img" aria-label="Kiprun"><use href="#logo-kiprun"/></svg><span class="lockup__tag footer__tag">more runs · more life</span></span><span class="u-text-outline">STORE</span></h2>
       <div class="eyebrow footer__version">Season 2026 · Built for every kilometre</div>
     </div>
   </footer>
@@ -301,4 +308,4 @@
 <script src="vendor/SplitText.min.js"></script>
 <script src="vendor/ScrambleTextPlugin.min.js"></script>
 <script src="vendor/lenis.min.js"></script>
-<script src="main.js?v=34"></script>
+<script src="main.js?v=35"></script>
