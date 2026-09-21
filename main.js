@@ -577,10 +577,6 @@ function initFeature() {
     d.dataset.final = d.textContent;
     ScrollTrigger.create({ trigger: d, start: 'top 85%', onEnter: () => scramble(d, 0.5) });
   });
-  gsap.from('.feature__buy > *', {
-    opacity: 0, y: 20, duration: 0.6, stagger: 0.08, ease: 'power2.out',
-    scrollTrigger: { trigger: '.feature__buy', start: 'top 90%' },
-  });
 }
 
 /* ── 6. range: popping product + list ───────────────────────── */

@@ -47,7 +47,7 @@ svg.defs{position:absolute;width:0;height:0}
 img{max-width:100%;display:block}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 a{color:inherit;text-decoration:none}
-:focus-visible{outline:2px solid var(--mint);outline-offset:3px}
+:focus-visible{outline:2px solid currentColor;outline-offset:3px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 
 /* ── type scale ── */
@@ -935,4 +935,37 @@ body{background:#fff}
 /* tablet: the shoe was small against the big copy at this width */
 @media (min-width:761px) and (max-width:1100px){
   .feature__shoe{width:min(42vw,420px)}
+}
+
+/* ══ spacing pass: one vertical rhythm for the static sections ══ */
+:root{--sec-y:calc(var(--sf) * 6)}
+.cc-range{padding-top:var(--sec-y);padding-bottom:var(--sec-y)}
+.cc-feature{padding-bottom:var(--sec-y)}
+/* the copy arrives sooner: the shoe used to hang alone for most of a screen */
+@media (min-width:761px){ .feature__words{padding-top:72vh;padding-bottom:44vh} }
+/* price + CTA ride with the pinned stage, top right, so they are on screen for the whole fold */
+.feature__buy{
+  position:absolute;top:calc(var(--sf) * 2.4);right:var(--pad);z-index:4;pointer-events:auto;
+  display:grid;justify-items:end;gap:.55em;padding:0;
+}
+@media (max-width:760px){
+  .feature__buy{position:static;justify-items:start;padding:calc(var(--sf) * 1.6) var(--pad) 0}
+}
+/* footer: centre the product strip in the band instead of leaving it empty */
+@media (min-width:761px){
+  .footer__strip{margin-top:auto;margin-bottom:auto}
+  .footer__strip-track img{height:calc(var(--sf) * 8.5);width:calc(var(--sf) * 8.5)}
+}
+/* pinned sections: less dead scroll for the same animations */
+.cc-breaker{height:280vh}
+.cc-kit{height:260vh}
+/* film bars were 3px tall targets */
+.film__dots button{height:23px;padding:10px 0}
+/* the active/hover rules use the background shorthand, which resets the clip: keep the bar 3px */
+.film__dots button,.film__dots li.is-on button,.film__dots button:hover{background-clip:content-box}
+@media (max-width:760px){
+  .cc-range{padding-top:var(--sec-y);padding-bottom:var(--sec-y)}
+  .hero__coords a{min-height:30px;display:inline-flex;align-items:center}
+  .cc-breaker{height:220vh}
+  .cc-kit{height:auto}             /* phones never pin the kit */
 }
