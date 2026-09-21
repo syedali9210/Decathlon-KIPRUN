@@ -992,3 +992,22 @@ body{background:#fff}
 .film__scrim{background:linear-gradient(to bottom,rgba(14,19,48,.3),transparent 22%,transparent 78%,rgba(14,19,48,.35))}
 /* nav is just logo + pills now */
 .hero__nav{grid-template-columns:1fr auto}
+
+/* ══ catalog on desktop: the stage runs the full width, the cards in one row under it ══ */
+@media (min-width:1101px){
+  .range__body{grid-template-columns:1fr;gap:calc(var(--sf) * 2.4)}
+  .range__stage{position:relative;top:0;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:calc(var(--sf) * 3)}
+  .stage__frame{aspect-ratio:16 / 9;overflow:hidden}
+  .stage__tilt{width:72%}
+  /* on-model apparel is portrait: fit it to the frame's height instead of its width */
+  .stage__frame.is-plate .stage__tilt,.stage__frame.is-plate .stage__float,.stage__frame.is-plate .stage__pop{width:100%;height:100%}
+  .stage__frame.is-plate .stage__pop img{width:100%;height:100%;object-fit:contain}
+  .range__list{grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+
+/* supplied cut-outs are tight-cropped: fit them on the plate instead of cropping to cover */
+:is(.pcard__img img, .panel__img img, .panel__kit img, .kit-card__img img, .footer__strip-track img)[src*="assets/shoes/"]{
+  /* not %: percentage padding resolves against the parent's width, and the strip's track is thousands of px wide */
+  object-fit:contain;padding:.9em;background:var(--plate);box-sizing:border-box;
+}
+.panel__img img[src*="assets/shoes/"]{padding:1.8em}

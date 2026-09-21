@@ -46,11 +46,11 @@ const PRODUCTS = [
   { code: '8960547', cat: 'shoes', series: true, name: 'Kipride Max', tag: 'Max cushion', price: 12999,
     full: 'Men Road Running Max Cushion Breathable Shoes, Kiprun Kipride Max - Teal Blue', img: 'p3038861/5a07a9636806d196b3c2f26c8f0d1df3/p3038861.jpg',
     usps: USP_KIPRIDE_MAX },
-  { code: '8961381', cat: 'shoes', series: true, name: 'Kipstorm', tag: 'Carbon race shoe', price: null,
+  { code: '8961381', cat: 'shoes', series: true, name: 'Kipstorm', tag: 'Carbon race shoe', price: 19999,
     full: 'Kiprun Kipstorm', img: KIPSTORM_IMG, link: shopUrl('8970785'),
-    note: 'Model 8961381 is not listed on decathlon.in yet. Shown with the live women’s Kipstorm (8970785).',
+    note: 'Model 8961381 is not listed on decathlon.in yet: priced and linked as the live Kipstorm (8970785, ₹19,999).',
     usps: USP_KIPSTORM },
-  { code: '8990034', cat: 'shoes', series: true, name: 'Kipride Gravel', tag: 'Road to trail', price: null,
+  { code: '8990034', cat: 'shoes', series: true, name: 'Kipride Gravel', tag: 'Road to trail', price: null, status: 'Discontinued',   // decathlon.in lists it as discontinued, no price
     full: 'Men Road and Trail Gravel Grip Cushion Shoes, Kiprun Kipride Gravel - Beige', img: 'p3159391/f7dc6f0f11010cc714c76b316616d2a9/p3159391.jpg',
     usps: [['Impact protection', 'Lightweight protection to shield your feet from obstacles on the trail.'],
            ['Traction', '3mm studs for the perfect balance between grip and traction.'],
@@ -206,6 +206,8 @@ function cutout(src) {
 /* cut-outs the user supplied (transparent already), used instead of the packshot.
    They skip the knockout: flood-filling a transparent plate eats black sole lines */
 const LOCAL = { '8961381': 'assets/shoes/kipstorm-8961381.webp' };
+/* every product photo goes through here, so a supplied image replaces the packshot everywhere */
+const photo = (p, w) => LOCAL[p.code] || pic(p.img, w);
 const imageFor = (p, w = 1200) => (LOCAL[p.code] ? Promise.resolve({ src: LOCAL[p.code], cut: true })
   : p.cat === 'shoes' ? cutout(pic(p.img, w)) : Promise.resolve({ src: pic(p.img, w), cut: false }));
 const decoded = (src) => new Promise((res) => { const im = new Image(); im.onload = im.onerror = () => res(); im.src = src; });
@@ -654,10 +656,10 @@ function setCat(cat) {
   list.innerHTML = items.map((p, i) => `
     <li class="pcard" data-code="${p.code}" data-track="Range: ${p.name}" tabindex="0">
       <span class="pcard__n eyebrow">${String(i + 1).padStart(2, '0')}</span>
-      <span class="pcard__img"><img src="${pic(p.img, 400)}" alt="" loading="lazy"></span>
+      <span class="pcard__img"><img src="${photo(p, 400)}" alt="" loading="lazy"></span>
       <span class="pcard__tag eyebrow">${p.tag}</span>
       <span class="pcard__name">${p.name}</span>
-      <span class="pcard__foot"><b>${inr(p.price) || 'On decathlon.in'}</b><i class="eyebrow">${p.code}</i></span>
+      <span class="pcard__foot"><b>${inr(p.price) || p.status || 'On decathlon.in'}</b><i class="eyebrow">${p.code}</i></span>
     </li>`).join('');
   $$('li', list).forEach((li) => {
     const p = byCode[li.dataset.code];
@@ -698,7 +700,7 @@ async function showProduct(p) {
       $('#stageName').textContent = p.name;
       $('#stageUsps').innerHTML = uspHTML(uspRows(p));
       gsap.fromTo('#stageUsps li', { autoAlpha: 0, x: 24 }, { autoAlpha: 1, x: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out', delay: REDUCED ? 0 : 0.2 });
-      $('#stagePrice').textContent = inr(p.price) || 'Price on decathlon.in';
+      $('#stagePrice').textContent = inr(p.price) || p.status || 'Price on decathlon.in';
       $('#stageLink').href = linkFor(p);
       const note = $('#stageNote');
       note.hidden = !p.note; note.textContent = p.note || '';
@@ -716,13 +718,13 @@ function openPanel(code, kit) {
   if (!p) return;
   kit = kit || kitsFor(code)[0] || null;
   const panel = $('#panel');
-  $('#panelImg').src = pic(p.img, 900);
+  $('#panelImg').src = photo(p, 900);
   $('#panelImg').alt = p.full;
   $('#panelName').textContent = p.name;
   $('#panelCode').textContent = `Model ${p.code} · ${p.tag}`;
   $('#panelDesc').textContent = p.desc || p.full;
   $('#panelUsps').innerHTML = p.usps ? uspHTML(p.usps) : '';
-  $('#panelPrice').textContent = inr(p.price) || 'Price on decathlon.in';
+  $('#panelPrice').textContent = inr(p.price) || p.status || 'Price on decathlon.in';
   $('#panelLink').href = linkFor(p);
   $('#panelNote').hidden = !p.note;
   $('#panelNote').textContent = p.note || '';
@@ -735,7 +737,7 @@ function openPanel(code, kit) {
     $('#panelKitList').innerHTML = order.map((c, i) => {
       const k = byCode[c];
       return `<li data-code="${c}" data-track="Panel kit: ${k.name}" class="${i === 0 ? 'is-pinned' : ''}" tabindex="0">
-        <img src="${pic(k.img, 300)}" alt="">
+        <img src="${photo(k, 300)}" alt="">
         <span class="eyebrow">${i === 0 ? 'Pinned · ' : ''}${c}</span>
         <span>${k.name}</span></li>`;
     }).join('');
@@ -827,7 +829,7 @@ function initMarqueeScrollDirection() {
   const all = PRODUCTS.filter((p) => p.code !== '8970785');     // one Kipstorm image is enough
   all.concat(all).forEach((p) => {
     const im = document.createElement('img');
-    im.src = pic(p.img, 300); im.alt = '';   // eager: lazy images in a clipped, transformed strip load late
+    im.src = photo(p, 300); im.alt = '';   // eager: lazy images in a clipped, transformed strip load late
     strip.appendChild(im);
   });
   let sx = 0;
@@ -849,9 +851,9 @@ function kitCard(role, code, extra = '') {
   return `<div class="kit-card" role="button" tabindex="0" data-code="${code}" data-track="Kit: ${p.name}">
     <b></b><b></b><i></i><i></i>
     <span class="kit-card__role eyebrow">${role}</span>
-    <span class="kit-card__img"><img src="${pic(p.img, 600)}" alt="${p.full}"></span>
+    <span class="kit-card__img"><img src="${photo(p, 600)}" alt="${p.full}"></span>
     <span class="kit-card__name">${p.name}</span>
-    <span class="kit-card__meta eyebrow">${code} · ${inr(p.price) || 'price on decathlon.in'}</span>
+    <span class="kit-card__meta eyebrow">${code} · ${inr(p.price) || p.status || 'price on decathlon.in'}</span>
     ${extra}
   </div>`;
 }
