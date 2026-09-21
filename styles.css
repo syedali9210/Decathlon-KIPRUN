@@ -728,7 +728,7 @@ body{background:#fff}
 }
 
 /* ══ the hero shoe cuts to the next one with a glitch ══ */
-.hero-slider.is-glitch .slide img{animation:shoeGlitch .36s steps(1) 1}
+.hero-slider.is-glitch .slide img{animation:shoeGlitch .48s steps(1) 1}
 @keyframes shoeGlitch{
   0%{clip-path:inset(0 0 68% 0);transform:translate3d(-9px,0,0) rotate(-8deg) scale(.9);filter:drop-shadow(7px 0 rgba(255,0,84,.85)) drop-shadow(-7px 0 rgba(0,231,255,.85))}
   22%{clip-path:inset(34% 0 34% 0);transform:translate3d(11px,0,0) rotate(-8deg) scale(.9);filter:drop-shadow(-6px 0 rgba(255,0,84,.8)) drop-shadow(6px 0 rgba(0,231,255,.8))}
@@ -968,4 +968,21 @@ body{background:#fff}
   .hero__coords a{min-height:30px;display:inline-flex;align-items:center}
   .cc-breaker{height:220vh}
   .cc-kit{height:auto}             /* phones never pin the kit */
+}
+
+/* ══ official brand marks (inline svg, colour from currentColor) ══ */
+.logo{display:block;height:auto;fill:currentColor;overflow:visible}
+.hero__logo .logo{width:calc(var(--sf) * 9);max-width:none}
+/* hero lockup: the Decathlon mark runs the width, Kiprun sits under it at the right — never on top */
+.hero__title .hero__dkt{width:100%}
+.hero__title .hero__kiprun{width:20%;margin:calc(var(--sf) * .9) 0 0 auto}
+.preloader .pl__over{width:min(30vw,260px)}
+.preloader .pl__word{width:min(62vw,720px)}
+.breaker__label .logo{width:calc(var(--sf) * 7.5)}
+.footer__mark{display:inline-flex;align-items:flex-end}
+.footer__mark .logo{height:.73em;width:auto}
+@media (max-width:760px){
+  .hero__logo .logo{width:calc(var(--sf) * 8.5)}
+  .hero__title .hero__kiprun{width:36%;margin:calc(var(--sf) * .7) 0 0}
+  .breaker__label .logo{width:calc(var(--sf) * 6.5)}
 }

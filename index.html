@@ -3,7 +3,7 @@
 <title>KIPRUN Run Store | Shoes, Apparel &amp; Accessories</title>
 <meta name="description" content="KIPRUN by Decathlon: five shoe series, practice and race-day kits, and the accessories to match.">
 <link rel="preconnect" href="https://contents.mediadecathlon.com" crossorigin>
-<link rel="stylesheet" href="styles.css?v=28">
+<link rel="stylesheet" href="styles.css?v=30">
 
 <!-- ═══ custom cursor ═══ -->
 <div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__ring"></span></div>
@@ -13,8 +13,8 @@
   <div class="pl__reel" id="plReel" aria-hidden="true"></div>
   <div class="pl__scrim" aria-hidden="true"></div>
   <div class="pl__logo" id="plLogo" aria-hidden="true">
-    <span class="pl__over">Decathlon</span>
-    <span class="pl__word">KIPRUN</span>
+    <svg class="logo logo--dkt pl__over" viewBox="0 0 188 28" role="img" aria-label="Decathlon"><use href="#logo-decathlon"/></svg>
+    <svg class="logo logo--kiprun pl__word" viewBox="0 0 153 23" role="img" aria-label="Kiprun"><use href="#logo-kiprun"/></svg>
   </div>
   <div class="pl__bar" aria-hidden="true"><span id="plBar"></span></div>
   <button class="pl__skip eyebrow" id="plSkip" type="button">Skip</button>
@@ -27,7 +27,7 @@
   <section class="section cc-hero" id="hero">
     <div class="hero__component">
       <nav class="hero__nav" aria-label="Store">
-        <a class="hero__logo" href="#top"><b>DECA</b>THLON</a>
+        <a class="hero__logo" href="#top" aria-label="Decathlon, back to top"><svg class="logo logo--dkt" viewBox="0 0 188 28" aria-hidden="true"><use href="#logo-decathlon"/></svg></a>
         <span class="hero__mark eyebrow" aria-hidden="true">Run store</span>
         <div class="hero__coords eyebrow">
           <a href="#feature" data-track="Nav: Kipride Max">Kipride Max</a>
@@ -38,8 +38,9 @@
 
       <div class="hero__stage">
         <h1 class="h-display hero__title" id="hero-title">
-          <span class="w-solid">DECATHLON</span>
-          <span class="hero__script">kiprun</span>
+          <span class="sr-only">Decathlon Kiprun</span>
+          <svg class="logo logo--dkt hero__dkt" viewBox="0 0 147.45 20.4" aria-hidden="true"><use href="#logo-decathlon-word"/></svg>
+          <svg class="logo logo--kiprun hero__kiprun" viewBox="0 0 153 23" aria-hidden="true"><use href="#logo-kiprun"/></svg>
         </h1>
 
         <div class="hero__gallery" id="heroGallery">
@@ -172,7 +173,7 @@
       </div>
       <div class="breaker__inner">
         <div class="breaker__eye breaker__eye--l" aria-hidden="true"><svg viewBox="0 0 80 40"><use href="#eye"/></svg></div>
-        <div class="breaker__label eyebrow">KIPRUN</div>
+        <div class="breaker__label"><svg class="logo logo--kiprun" viewBox="0 0 153 23" role="img" aria-label="Kiprun"><use href="#logo-kiprun"/></svg></div>
         <div class="breaker__eye breaker__eye--r" aria-hidden="true"><svg viewBox="0 0 80 40"><use href="#eye"/></svg></div>
         <div class="breaker__kanji" aria-hidden="true">42K</div>
         <div class="breaker__row" data-row="1">
@@ -247,7 +248,7 @@
         <div class="eyebrow footer__meta">2026<br><a href="https://www.decathlon.in" target="_blank" rel="noopener">decathlon.in ↗</a></div>
       </div>
       <div class="footer__strip" id="footerStrip" aria-hidden="true"><div class="footer__strip-track" id="footerStripTrack"></div></div>
-      <h2 class="h-display footer__wordmark"><span class="w-solid">KIPRUN</span><span class="u-text-outline">STORE</span></h2>
+      <h2 class="h-display footer__wordmark"><span class="w-solid footer__mark"><svg class="logo logo--kiprun" viewBox="0 0 153 23" role="img" aria-label="Kiprun"><use href="#logo-kiprun"/></svg></span><span class="u-text-outline">STORE</span></h2>
       <div class="eyebrow footer__version">Season 2026 · Built for every kilometre</div>
     </div>
   </footer>
@@ -277,6 +278,9 @@
 <!-- ═══ svg defs ═══ -->
 <svg class="defs" aria-hidden="true" focusable="false">
   <defs>
+    <symbol id="logo-decathlon" viewBox="0 0 188 28"><path fill="currentColor" d="M25.2111 0C14.2668 0 0.653107 11.3236 0.653107 20.7085C0.653107 25.5554 4.37614 28 9.29335 28C12.904 28 17.2733 26.6794 21.488 24.1365V5.40893C20.3641 7.33366 15.0816 15.0888 10.8388 19.2193C8.67519 21.3266 6.96119 22.2398 5.48603 22.2398C3.82822 22.2398 3.04147 21.1159 3.04147 19.4441C3.04147 11.8575 15.8122 1.99498 24.2698 1.99498C27.754 1.99498 30.0018 3.54039 30.0018 6.54692C30.0018 9.30055 28.1333 12.7566 24.9441 15.9458V21.7481C30.5076 17.3507 33.8373 11.7451 33.8373 7.22127C33.8373 2.4586 30.1283 0 25.2111 0Z"/><path fill="currentColor" d="M57.5509 23.8H70.7949V19.544H62.5909V15.974H69.8569V12.012H62.5909V8.442H70.7949V4.2H57.5509V23.8ZM87.2309 15.358C85.3129 18.41 83.4509 19.684 81.0569 19.684C77.9489 19.684 76.1429 17.5 76.1429 13.706C76.1429 10.108 77.8089 8.316 80.3709 8.316C82.0649 8.316 83.4649 9.072 83.8989 11.592H88.9389C88.3929 6.79 85.3269 3.808 80.4269 3.808C74.7429 3.808 71.0049 7.82599 71.0049 13.986C71.0049 20.188 74.7429 24.192 80.8889 24.192C84.9069 24.192 87.6369 22.512 89.4429 20.244H96.3169V23.8H101.329V4.2H94.2169L87.2309 15.358ZM96.3169 16.31H91.8789L96.3169 9.1V16.31ZM46.7989 4.2H39.4349V23.8H46.7989C52.6369 23.8 56.4029 19.95 56.4029 14C56.4029 8.05 52.6369 4.2 46.7989 4.2ZM46.7289 19.544H44.4749V8.442H46.7289C49.6409 8.442 51.2789 10.5 51.2789 14C51.2789 17.486 49.6409 19.544 46.7289 19.544ZM159.177 3.808C153.255 3.808 149.279 7.826 149.279 14C149.279 20.174 153.255 24.192 159.177 24.192C165.113 24.192 169.075 20.174 169.075 14C169.075 7.82601 165.113 3.808 159.177 3.808ZM159.177 19.684C156.265 19.684 154.431 17.738 154.431 14C154.431 10.262 156.265 8.316 159.177 8.316C162.103 8.316 163.923 10.262 163.923 14C163.923 17.738 162.103 19.684 159.177 19.684ZM102.589 8.442H107.531V23.8H112.571V8.442H117.513V4.2H102.589L102.589 8.442ZM181.941 4.2V14.994L175.445 4.2H170.223V23.8H175.095V12.558L181.857 23.8H186.813V4.2L181.941 4.2ZM142.139 4.2H137.099V23.8H149.741V19.558H142.139V4.2ZM130.603 11.676H123.813V4.2H118.773V23.8H123.813V15.904H130.603V23.8H135.643V4.2H130.603V11.676Z"/></symbol>
+    <symbol id="logo-decathlon-word" viewBox="39.4 3.8 147.45 20.4"><path fill="currentColor" d="M57.5509 23.8H70.7949V19.544H62.5909V15.974H69.8569V12.012H62.5909V8.442H70.7949V4.2H57.5509V23.8ZM87.2309 15.358C85.3129 18.41 83.4509 19.684 81.0569 19.684C77.9489 19.684 76.1429 17.5 76.1429 13.706C76.1429 10.108 77.8089 8.316 80.3709 8.316C82.0649 8.316 83.4649 9.072 83.8989 11.592H88.9389C88.3929 6.79 85.3269 3.808 80.4269 3.808C74.7429 3.808 71.0049 7.82599 71.0049 13.986C71.0049 20.188 74.7429 24.192 80.8889 24.192C84.9069 24.192 87.6369 22.512 89.4429 20.244H96.3169V23.8H101.329V4.2H94.2169L87.2309 15.358ZM96.3169 16.31H91.8789L96.3169 9.1V16.31ZM46.7989 4.2H39.4349V23.8H46.7989C52.6369 23.8 56.4029 19.95 56.4029 14C56.4029 8.05 52.6369 4.2 46.7989 4.2ZM46.7289 19.544H44.4749V8.442H46.7289C49.6409 8.442 51.2789 10.5 51.2789 14C51.2789 17.486 49.6409 19.544 46.7289 19.544ZM159.177 3.808C153.255 3.808 149.279 7.826 149.279 14C149.279 20.174 153.255 24.192 159.177 24.192C165.113 24.192 169.075 20.174 169.075 14C169.075 7.82601 165.113 3.808 159.177 3.808ZM159.177 19.684C156.265 19.684 154.431 17.738 154.431 14C154.431 10.262 156.265 8.316 159.177 8.316C162.103 8.316 163.923 10.262 163.923 14C163.923 17.738 162.103 19.684 159.177 19.684ZM102.589 8.442H107.531V23.8H112.571V8.442H117.513V4.2H102.589L102.589 8.442ZM181.941 4.2V14.994L175.445 4.2H170.223V23.8H175.095V12.558L181.857 23.8H186.813V4.2L181.941 4.2ZM142.139 4.2H137.099V23.8H149.741V19.558H142.139V4.2ZM130.603 11.676H123.813V4.2H118.773V23.8H123.813V15.904H130.603V23.8H135.643V4.2H130.603V11.676Z"/></symbol>
+    <symbol id="logo-kiprun" viewBox="0 0 153 23"><path fill="currentColor" d="M88.8 15.82c-.116-.11-.135-.26-.039-.322 1.072-.682 1.832-1.586 2.15-2.653.36-1.24.206-2.711-.419-4.433a11.897 11.897 0 0 0-2.86-4.475c-1.293-1.264-2.808-2.235-4.577-2.918C81.286.341 79.368 0 77.291 0h-13.08l10.532 22.59h7.913l-2.745-5.9h2.043c.135 0 .289.068.404.178l6.245 5.721h8.138L88.8 15.82ZM74.604 5.355h4.26c1.215 0 2.215.274 2.994.817.789.548 1.346 1.293 1.688 2.24.34.938.322 1.688-.068 2.236-.384.543-1.187.822-2.403.822H77.45l-2.846-6.115ZM133.56 0l5.216 11.167L125.277 0h-7.951l10.538 22.59h7.941l-5.134-11.01 13.432 11.014 7.927-.005L141.497 0h-7.937ZM105.327 0h7.951l5.802 12.451c1.995 4.341 1.246 6.898-.394 8.403-2.495 2.293-7.038 2.144-7.038 2.144-3.418 0-6.715-.697-9.484-2.553-2.77-1.846-4.933-4.663-6.476-8.004L89.9 0h7.961l5.61 12.1c.894 1.928 1.817 3.298 2.899 4.105 1.072.808 2.129 1.212 3.312 1.212 1.183 0 1.966-.404 2.279-1.212.312-.807-.135-2.177-1.029-4.105L105.327 0ZM29.646 14.518C23.56 13.19 18.998 7.758 18.998 1.274c0-.428.02-.851.058-1.27h-7.908a21.243 21.243 0 0 0 1.39 8.956L8.37 0H0l10.537 22.594h8.365l-5.154-11.052c3.63 6.59 10.639 11.052 18.691 11.052h.976l-3.77-8.081v.005h.001ZM26.268 0l10.527 22.59h7.947L34.209 0h-7.941ZM62.01 3.937c-1.279-1.264-2.808-2.235-4.572-2.918C55.668.34 53.746 0 51.665 0H38.584l10.533 22.59h7.956l-2.693-5.774h3.37c2.087 0 3.76-.341 5.029-1.034 1.269-.692 2.086-1.658 2.456-2.918.38-1.25.25-2.73-.375-4.452A11.893 11.893 0 0 0 62 3.937m-4.187 6.687c-.385.534-1.178.812-2.38.812h-3.586L49.025 5.39h4.22c1.203 0 2.188.269 2.962.812s1.332 1.279 1.668 2.211c.342.933.313 1.674-.062 2.212Z"/></symbol>
     <g id="crest">
       <rect x="2" y="2" width="60" height="60" fill="none" stroke="currentColor" stroke-width="1.5"/>
       <circle cx="32" cy="34" r="16" fill="none" stroke="currentColor" stroke-width="2.5"/>
@@ -302,4 +306,4 @@
 <script src="vendor/SplitText.min.js"></script>
 <script src="vendor/ScrambleTextPlugin.min.js"></script>
 <script src="vendor/lenis.min.js"></script>
-<script src="main.js?v=28"></script>
+<script src="main.js?v=30"></script>

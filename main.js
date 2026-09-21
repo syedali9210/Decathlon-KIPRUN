@@ -203,10 +203,11 @@ function cutout(src) {
   return job;
 }
 /* shoes float as cut-outs; apparel is on-model and accessories sit on their plate */
-/* studio stills the user shot, used instead of the packshot where we have one */
+/* cut-outs the user supplied (transparent already), used instead of the packshot.
+   They skip the knockout: flood-filling a transparent plate eats black sole lines */
 const LOCAL = { '8961381': 'assets/shoes/kipstorm-8961381.webp' };
-const srcFor = (p, w) => LOCAL[p.code] || pic(p.img, w);
-const imageFor = (p, w = 1200) => (p.cat === 'shoes' ? cutout(srcFor(p, w)) : Promise.resolve({ src: srcFor(p, w), cut: false }));
+const imageFor = (p, w = 1200) => (LOCAL[p.code] ? Promise.resolve({ src: LOCAL[p.code], cut: true })
+  : p.cat === 'shoes' ? cutout(pic(p.img, w)) : Promise.resolve({ src: pic(p.img, w), cut: false }));
 const decoded = (src) => new Promise((res) => { const im = new Image(); im.onload = im.onerror = () => res(); im.src = src; });
 
 /* ── 0. scramble helper ────────────────────────────────────────
@@ -319,14 +320,14 @@ function buildHero() {
 function goHero(next) {
   const slides = $$('.hero-slider .slide');
   if (next === heroIndex || !slides.length) return;
-  gsap.to(slides[heroIndex], { opacity: 0, duration: 0.28, ease: 'power2.in' });
-  gsap.fromTo(slides[next], { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out', delay: 0.06 });
+  gsap.to(slides[heroIndex], { opacity: 0, duration: 0.37, ease: 'power2.in' });
+  gsap.fromTo(slides[next], { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out', delay: 0.08 });
   // the cut carries a short glitch, like the reel skipping a frame
   const slider = $('#heroSlider');
   slider.classList.remove('is-glitch');
   void slider.offsetWidth;                       // restart the keyframes
   slider.classList.add('is-glitch');
-  gsap.delayedCall(0.4, () => slider.classList.remove('is-glitch'));
+  gsap.delayedCall(0.53, () => slider.classList.remove('is-glitch'));
   $$('#heroSeries li').forEach((li, i) => li.classList.toggle('is-active', i === next));
   setScrambled($('#heroSliderLabel'), SERIES[next].name, 0.3);
   setScrambled($('#heroCount'), `Series ${String(next + 1).padStart(2, '0')} / ${String(SERIES.length).padStart(2, '0')}`, 0.3);
@@ -335,8 +336,8 @@ function goHero(next) {
 
 function runHeroIntro() {
   if (REDUCED) return;
-  const title = new SplitText('.hero__title span', { type: 'chars' });
-  gsap.fromTo(title.chars, { yPercent: 115 }, { yPercent: 0, duration: 0.8, stagger: 0.012, ease: 'expo.out' });
+  // the lockup is two svg marks now, so they rise as whole shapes
+  gsap.fromTo('.hero__title .logo', { yPercent: 30, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.9, stagger: 0.1, ease: 'expo.out' });
   gsap.fromTo('.hero__caption', { y: 24, opacity: 0 },
     { y: 0, opacity: 0.75, duration: 0.8, ease: 'power2.out', delay: 0.1 });
   gsap.fromTo('.cc-hero-cta, .hero__series, .hero__foot > *, .hero__nav > *', { opacity: 0, y: 18 },
@@ -348,7 +349,7 @@ function runHeroIntro() {
 
 function initHeroSlider() {
   if (REDUCED || SERIES.length < 2) return;
-  setInterval(() => goHero((heroIndex + 1) % SERIES.length), 3200);
+  setInterval(() => goHero((heroIndex + 1) % SERIES.length), 4270);   // 0.75x of the old 3.2s pace
 }
 
 /* ── 4b. film: the clip opens out of the hero, then cuts colourway ── */
