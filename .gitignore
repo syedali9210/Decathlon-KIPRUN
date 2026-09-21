@@ -3,7 +3,10 @@ _src/
 .claude/
 # old Utopia Tokyo media the KIPRUN store no longer uses
 assets/masks/
-assets/video/
+assets/video/preloader.*
+# the Meshy scan trial and its viewer: reverted, kept locally only
+assets/model/
+vendor/model-viewer.min.js
 # live analytics data (visitor events)
 analytics/events.db
 # python bytecode

@@ -39,11 +39,11 @@
 
   /* ── where on the page ── */
   const panelOpen = () => document.getElementById('panel')?.hidden === false;
-  const sectionOf = (el) => (el.closest('#panel') ? 'panel' : el.closest('.sec')?.id || 'other');
+  const sectionOf = (el) => (el.closest('#panel') ? 'panel' : el.closest('section[id],footer[id]')?.id || 'other');
   const sectionAtCenter = () => {
     if (panelOpen()) return 'panel';
     const y = innerHeight / 2;
-    const s = [...document.querySelectorAll('.sec')].find((n) => { const r = n.getBoundingClientRect(); return r.top <= y && r.bottom > y; });
+    const s = [...document.querySelectorAll('section[id],footer[id]')].find((n) => { const r = n.getBoundingClientRect(); return r.top <= y && r.bottom > y; });
     return s?.id || 'other';
   };
   const labelOf = (el) => {

@@ -62,7 +62,7 @@ a{color:inherit;text-decoration:none}
 }
 .eyebrow{
   font-family:var(--font-2);font-weight:400;
-  font-size:calc(var(--sf) * .875);line-height:1.2;
+  font-size:max(10px,calc(var(--sf) * .875));line-height:1.2;
   text-transform:uppercase;letter-spacing:.02em;
 }
 .p-m{font-size:var(--sf);font-weight:600;line-height:1.3;letter-spacing:-.01em}
@@ -154,26 +154,32 @@ a{color:inherit;text-decoration:none}
                     100% 66%,100% 100%,66% 100%,66% 94%,94% 94%,94% 66%);
 }
 
-/* ══ preloader ══ */
-.preloader{position:fixed;inset:0;z-index:350;background:var(--black);overflow:hidden}
-.preloader__grid{
-  position:absolute;inset:0;display:grid;
-  grid-template-columns:repeat(3,1fr);align-content:space-between;
-  padding:calc(var(--sf) * 2.5);
-  font-family:var(--font-2);font-size:calc(var(--sf) * .75);
-  color:var(--red);text-transform:uppercase;
+/* ══ preloader: a reel of shoe photos, zooming out to the KIPRUN card ══ */
+.preloader{position:fixed;inset:0;z-index:350;background:var(--blue);overflow:hidden;display:grid;place-items:center}
+.pl__reel{
+  position:absolute;inset:0;overflow:hidden;background:#fff;
+  transform-origin:50% 50%;will-change:transform;
 }
-.preloader__grid .cell{padding:calc(var(--sf) * .55) 0}
-.preloader__grid .cell:nth-child(3n+2){text-align:center}
-.preloader__grid .cell:nth-child(3n){text-align:right}
-.preloader__media{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
-.preloader__shoe{width:min(56vw,760px);height:auto;opacity:0;filter:drop-shadow(0 40px 60px rgba(0,0,0,.6))}
-.preloader__cta{
-  position:absolute;left:50%;bottom:calc(var(--sf) * 3);transform:translateX(-50%);
-  display:grid;justify-items:center;gap:calc(var(--sf) * .9);
-  color:var(--cream);opacity:0;
+.pl__reel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0}
+.pl__scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,19,48,.05),rgba(14,19,48,.55));opacity:0;pointer-events:none}
+.pl__logo{position:relative;z-index:2;display:grid;justify-items:center;gap:.5em;color:#fff;opacity:0;text-align:center}
+.pl__over{
+  font-family:var(--font-2);font-size:calc(var(--sf) * .8);
+  text-transform:uppercase;letter-spacing:.5em;text-indent:.5em;opacity:.9;
 }
-.preloader__loading{color:var(--red)}
+.pl__word{font-size:calc(var(--sf) * 7);line-height:.84;letter-spacing:-.02em;text-transform:uppercase}
+.pl__bar{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.25);z-index:3}
+.pl__bar span{display:block;height:100%;width:0;background:#fff}
+.pl__skip{
+  position:absolute;right:var(--pad);bottom:calc(var(--sf) * 1.8);z-index:3;
+  padding:.5em .9em;border:1px solid rgba(255,255,255,.6);color:#fff;opacity:.75;
+  transition:opacity .25s ease,background-color .25s ease;
+}
+.pl__skip:hover{opacity:1;background:rgba(255,255,255,.14)}
+@media (max-width:760px){
+  .pl__word{font-size:calc(var(--sf) * 4.6)}
+  .pl__over{font-size:calc(var(--sf) * .66)}
+}
 
 /* ══ 1. hero ══ */
 .section{position:relative}
@@ -477,7 +483,8 @@ a{color:inherit;text-decoration:none}
   .panel__img{justify-self:center;width:min(420px,100%)}
 }
 @media (max-width:760px){
-  :root{--sf:calc(clamp(320px,100vw,992px) / 34)}
+  /* floor the phone scale: below ~370px the labels fell under 8px */
+  :root{--sf:max(11px,calc(clamp(320px,100vw,992px) / 34))}
   .h-display{font-size:calc(var(--sf) * 6.4)}
   .hero__title,.footer__wordmark{flex-direction:column;align-items:flex-start}
   .hero__body{grid-template-columns:1fr}
@@ -718,4 +725,214 @@ body{background:#fff}
   .feature__stage{place-items:center end;padding-right:calc(var(--sf) * 3)}
   .feature__shoe{width:min(42vw,660px)}   /* it scrubs up to 1.12: leave room so the scaled edge still fits */
   .feature__w{font-size:calc(var(--sf) * 6);line-height:1.5}
+}
+
+/* ══ the hero shoe cuts to the next one with a glitch ══ */
+.hero-slider.is-glitch .slide img{animation:shoeGlitch .36s steps(1) 1}
+@keyframes shoeGlitch{
+  0%{clip-path:inset(0 0 68% 0);transform:translate3d(-9px,0,0) rotate(-8deg) scale(.9);filter:drop-shadow(7px 0 rgba(255,0,84,.85)) drop-shadow(-7px 0 rgba(0,231,255,.85))}
+  22%{clip-path:inset(34% 0 34% 0);transform:translate3d(11px,0,0) rotate(-8deg) scale(.9);filter:drop-shadow(-6px 0 rgba(255,0,84,.8)) drop-shadow(6px 0 rgba(0,231,255,.8))}
+  44%{clip-path:inset(62% 0 8% 0);transform:translate3d(-7px,0,0) rotate(-8deg) scale(.9);filter:drop-shadow(5px 0 rgba(255,0,84,.7)) drop-shadow(-5px 0 rgba(0,231,255,.7))}
+  66%{clip-path:inset(10% 0 52% 0);transform:translate3d(6px,0,0) rotate(-8deg) scale(.9)}
+  84%{transform:translate3d(-3px,0,0) rotate(-8deg) scale(.9)}
+  100%{transform:translate3d(0,0,0) rotate(-8deg) scale(.9)}
+}
+@media (prefers-reduced-motion:reduce){ .hero-slider.is-glitch .slide img{animation:none} }
+
+/* ══ centre-staged hero shoe: the claim sits to its left ══ */
+@media (min-width:761px){
+  .hero__body{grid-template-columns:1fr}
+  .hero__left{grid-area:1 / 1;align-self:center;justify-self:start;max-width:30%;z-index:2}
+  .hero__gallery{grid-area:1 / 1;justify-self:center;width:min(48vw,760px)}
+}
+
+/* centre-staged shoe: the faded duplicates crowded it, and it can carry more size */
+.hero__ghosts{display:none}
+@media (min-width:761px){
+  .hero__gallery{width:min(54vw,860px)}
+}
+/* the shoe is tilted, so its corners reach past the slider box: keep the series names clear */
+.hero__gallery{gap:calc(var(--sf) * 2.6)}
+/* the slide img filled the whole box, so tilting it swept its corners over the series names */
+.hero-slider .slide img{width:auto;max-width:100%;height:100%;transform:rotate(-8deg) scale(.9)}
+
+/* ══ hero, Buttermax-style: one wordmark across the top, the shoe centre-staged
+   over it, caption bottom-left, pill nav top-right — white ground, blue type ══ */
+.cc-hero{background:#fff;color:var(--blue);height:100vh;min-height:600px;overflow:hidden}
+.hero__grid{display:none}
+.hero__component{display:flex;flex-direction:column;padding:0 var(--pad) calc(var(--sf) * 1)}
+
+.hero__nav{
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1em;
+  height:calc(var(--sf) * 3.6);flex:0 0 auto;
+}
+.hero__logo{position:static;clip-path:none;background:none;padding:0;color:var(--blue)}
+.hero__logo b{color:var(--ink)}
+.hero__mark{justify-self:center;opacity:.55;letter-spacing:.24em}
+.hero__coords{margin-left:0;justify-self:end;gap:.4em}
+.hero__coords a{
+  padding:.65em 1.3em;border:1px solid rgba(54,67,186,.32);border-radius:999px;
+  font-family:var(--font-2);font-size:calc(var(--sf) * .76);letter-spacing:.04em;
+  transition:background .25s ease,color .25s ease,border-color .25s ease;
+}
+.hero__coords a:hover{opacity:1;background:var(--blue);border-color:var(--blue);color:#fff}
+
+.hero__stage{position:relative;flex:1 1 auto;min-height:0;display:grid;place-items:center}
+.hero__title{
+  position:absolute;left:0;right:0;top:0;z-index:1;
+  display:block;margin:0;text-align:center;white-space:nowrap;
+  font-size:16.2vw;line-height:.8;letter-spacing:-.035em;color:var(--blue);
+}
+.hero__title .w-solid{display:inline-block}
+.hero__script{
+  position:absolute;right:4%;top:.58em;z-index:3;
+  font-size:.3em;line-height:1;letter-spacing:-.01em;text-transform:lowercase;
+  transform:rotate(-7deg) skewX(-9deg);
+  color:#fff;-webkit-text-stroke:3px var(--blue);
+}
+
+.hero__gallery{
+  position:relative;z-index:2;align-self:center;
+  width:min(52vw,720px);height:min(62vh,520px);margin-top:calc(var(--sf) * -5);
+  grid-template-rows:minmax(0,1fr);gap:0;
+}
+.hero__gallery-label{
+  top:auto;bottom:calc(var(--sf) * -1.6);color:var(--blue);opacity:.7;
+  font-size:calc(var(--sf) * .875);letter-spacing:.2em;
+}
+.hero-slider .slide img{filter:drop-shadow(0 26px 30px rgba(14,19,48,.22))}
+
+.hero__caption{
+  position:absolute;left:0;bottom:2%;z-index:3;max-width:17em;
+  font-size:calc(var(--sf) * .78);line-height:1.6;opacity:.75;
+}
+.cc-hero-cta{position:absolute;right:0;bottom:2%;z-index:3;margin-top:0}
+
+.hero__foot{
+  position:static;flex:0 0 auto;align-items:center;
+  padding-top:calc(var(--sf) * .9);border-top:1px solid rgba(54,67,186,.2);
+}
+.hero__series{justify-content:flex-start;margin-top:0;gap:.3em 1.2em;font-size:calc(var(--sf) * .78)}
+
+@media (max-width:760px){
+  .cc-hero{height:100vh;min-height:560px}
+  .hero__nav{grid-template-columns:auto 1fr;height:auto;padding-top:calc(var(--sf) * .6);gap:.4em}
+  .hero__mark{display:none}
+  .hero__coords{font-size:calc(var(--sf) * .58);gap:.3em}
+  .hero__coords a{padding:.5em .8em}
+  /* 9 caps have to fit one line: 12.6vw is the widest that clears 320px */
+  .hero__title{font-size:12.6vw;white-space:nowrap}
+  /* on a phone the shoe is width-bound, so let it bleed past both edges (the hero clips it)
+     and run the stage as a column: shoe, caption, cta, with no empty grid rows */
+  /* title at the top, shoe taking the slack, caption and cta anchored to the foot */
+  .hero__stage{display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;gap:calc(var(--sf) * 1.2)}
+  .hero__gallery{width:100%;margin:auto 0;height:auto;aspect-ratio:1.36;max-height:38vh}
+  .hero__gallery-label{bottom:calc(var(--sf) * -1.2)}
+  .hero__caption,.cc-hero-cta{position:static}
+  .cc-hero-cta{align-self:flex-start}
+  /* at phone size the script is too small to read over the O and N: drop it under the word */
+  .hero__script{position:static;display:block;font-size:.42em;margin-top:.12em;
+    transform:rotate(-5deg) skewX(-8deg);-webkit-text-stroke-width:2px}
+  .hero__caption{max-width:15em;font-size:calc(var(--sf) * .8)}
+  .cc-hero-cta{font-size:calc(var(--sf) * .7);padding:.8em 1.1em}
+  .hero__series{gap:.25em .8em;font-size:calc(var(--sf) * .68)}
+}
+
+
+
+/* ══ 1b. film: the clip opens out of the hero and takes the whole screen ══ */
+.cc-film{height:340vh;background:#fff}
+.film__sticky{position:sticky;top:0;height:100vh;overflow:hidden}
+/* the frame is always viewport-sized; the scrub opens its clip from a centred
+   card to full bleed, so the footage never reframes as it grows */
+.film__frame{
+  position:absolute;inset:0;overflow:hidden;background:var(--ink);
+  clip-path:inset(15% 26% 15% 26%);
+}
+.film__video{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transform:scale(1.12);
+}
+.film__video.is-on{opacity:1}
+.film__scrim{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(14,19,48,.45),transparent 28%,transparent 62%,rgba(14,19,48,.62));
+}
+.film__ui{position:absolute;inset:0;color:#fff;pointer-events:none}
+.film__eyebrow{position:absolute;left:var(--pad);top:calc(var(--sf) * 2);opacity:.8}
+.film__cap{position:absolute;left:var(--pad);bottom:calc(var(--sf) * 2.2);display:grid;gap:.35em}
+.film__name{
+  font-family:var(--font-1);font-weight:600;text-transform:uppercase;
+  font-size:calc(var(--sf) * 3.4);line-height:.9;letter-spacing:-.02em;
+}
+.film__meta{opacity:.75}
+.film__dots{
+  position:absolute;right:var(--pad);bottom:calc(var(--sf) * 2.4);
+  display:flex;gap:.7em;list-style:none;pointer-events:auto;
+}
+.film__dots button{
+  width:calc(var(--sf) * 2.6);height:3px;padding:0;border:0;cursor:pointer;
+  background:rgba(255,255,255,.35);transition:background .3s ease;
+}
+.film__dots li.is-on button,.film__dots button:hover{background:#fff}
+/* the cut between colourways carries the same glitch as the hero */
+.film__frame.is-glitch .film__video.is-on{animation:shoeCut .3s steps(1) 1}
+@keyframes shoeCut{
+  0%{clip-path:inset(0 0 66% 0);transform:translate3d(-12px,0,0) scale(1.12)}
+  33%{clip-path:inset(38% 0 30% 0);transform:translate3d(14px,0,0) scale(1.12)}
+  66%{clip-path:inset(64% 0 6% 0);transform:translate3d(-8px,0,0) scale(1.12)}
+  100%{transform:scale(1.12)}
+}
+@media (max-width:760px){
+  .cc-film{height:300vh}
+  .film__frame{clip-path:inset(12% 8% 12% 8%)}
+  .film__name{font-size:calc(var(--sf) * 2.6)}
+}
+@media (prefers-reduced-motion:reduce){
+  .cc-film{height:100vh}
+  .film__frame{clip-path:inset(0)}
+  .film__frame.is-glitch .film__video.is-on{animation:none}
+}
+
+/* ══ feature fold: shoe and copy both centred, shoe rendered on a canvas ══ */
+@media (min-width:761px){
+  .feature__stage{place-items:center;padding-right:0}
+  /* the shoe sits on top of the centred copy, so keep it small enough that the
+     lines still read past both of its ends */
+  .feature__shoe{width:min(31vw,460px)}
+  .feature__words{text-align:center;justify-items:center;line-height:1}
+  .feature__w{font-size:calc(var(--sf) * 7);line-height:1.02}
+}
+/* the words run under the pinned shoe, so the block needs room to travel */
+.feature__words{padding:92vh var(--pad) 58vh;gap:0}
+.feature__over{display:block;margin-bottom:.9em;opacity:.65;letter-spacing:.24em}
+#featureGl{display:block;width:100%;height:auto;filter:drop-shadow(0 30px 40px rgba(14,19,48,.22))}
+.feature__w{text-shadow:0 0 .3em rgba(255,255,255,.85),0 0 .9em rgba(255,255,255,.7)}
+#featureImg.is-hidden{visibility:hidden}
+#featureImg{position:absolute;inset:0;width:100%;height:auto}
+.feature__bob{min-height:1px}
+@media (max-width:760px){
+  .feature__words{padding:calc(var(--sf) * 3) var(--pad);text-align:center;justify-items:center}
+  .feature__w{font-size:calc(var(--sf) * 4.6);line-height:1.05}
+}
+
+/* ══ phone type floors: every label that sat under ~9px ══ */
+@media (max-width:760px){
+  .eyebrow{font-size:max(9.5px,calc(var(--sf) * .875))}
+  .hero__coords{font-size:max(9px,calc(var(--sf) * .62))}
+  .hero__series{font-size:max(9.5px,calc(var(--sf) * .68))}
+  .hero__caption{font-size:max(10px,calc(var(--sf) * .8))}
+  .cc-hero-cta,.button{font-size:max(9.5px,calc(var(--sf) * .7))}
+  .spec__text{font-size:max(10px,calc(var(--sf) * .8))}
+  .kit-card__meta{font-size:max(9.5px,calc(var(--sf) * .66))}
+  .kit__note{font-size:max(9.5px,calc(var(--sf) * .6))}
+  .range__tab sup{font-size:max(8.5px,.7em)}
+  .hero__coords a{font-size:max(9.5px,calc(var(--sf) * .62))}
+  .button.cc-sm{font-size:max(9.5px,calc(var(--sf) * .7))}
+  .pcard__foot .eyebrow,.usps li p,.marquee__track span,.breaker__row span{font-size:max(9.5px,calc(var(--sf) * .7))}
+  .footer__credits,.footer__meta{font-size:max(9.5px,calc(var(--sf) * .8))}
+}
+/* tablet: the shoe was small against the big copy at this width */
+@media (min-width:761px) and (max-width:1100px){
+  .feature__shoe{width:min(42vw,420px)}
 }

@@ -3,25 +3,22 @@
 <title>KIPRUN Run Store | Shoes, Apparel &amp; Accessories</title>
 <meta name="description" content="KIPRUN by Decathlon: five shoe series, practice and race-day kits, and the accessories to match.">
 <link rel="preconnect" href="https://contents.mediadecathlon.com" crossorigin>
-<link rel="stylesheet" href="styles.css?v=13">
+<link rel="stylesheet" href="styles.css?v=26">
 
 <!-- ═══ custom cursor ═══ -->
 <div class="cursor" id="cursor" aria-hidden="true"><span class="cursor__ring"></span></div>
 
-<!-- ═══ preloader ═══ -->
+<!-- ═══ preloader: shoe reel → zoom out → KIPRUN → reveal ═══ -->
 <div class="preloader" id="preloader">
-  <div class="preloader__tech u-tech" aria-hidden="true"></div>
-  <div class="preloader__grid" id="preloaderGrid"></div>
-  <div class="preloader__media"><img class="preloader__shoe" id="preloaderShoe" alt=""></div>
-  <div class="preloader__cta" id="preloaderCta">
-    <button class="button cc-lg"><i></i><span data-scramble>[ ENTER STORE ]</span><i></i></button>
-    <div class="preloader__loading eyebrow"><span id="preloaderMsg">Loading the range. Please wait.</span></div>
+  <div class="pl__reel" id="plReel" aria-hidden="true"></div>
+  <div class="pl__scrim" aria-hidden="true"></div>
+  <div class="pl__logo" id="plLogo" aria-hidden="true">
+    <span class="pl__over">Decathlon</span>
+    <span class="pl__word">KIPRUN</span>
   </div>
-</div>
-
-<!-- ═══ fixed HUD frame ═══ -->
-<div class="frame" aria-hidden="true">
-  <span class="frame__reticle"></span>
+  <div class="pl__bar" aria-hidden="true"><span id="plBar"></span></div>
+  <button class="pl__skip eyebrow" id="plSkip" type="button">Skip</button>
+  <span class="sr-only" id="preloaderMsg">Loading the KIPRUN store</span>
 </div>
 
 <main class="main-wrapper" id="top">
@@ -29,59 +26,82 @@
   <!-- ─── 1. hero: about KIPRUN + the whole series ─── -->
   <section class="section cc-hero" id="hero">
     <div class="hero__component">
-      <div class="hero__grid" aria-hidden="true">
-        <i class="v" style="--x:41.7%"></i><i class="v" style="--x:66.7%"></i>
-        <i class="h" style="--y:28.4%;--x0:0;--x1:41.7%"></i>
-        <i class="h" style="--y:55%;--x0:41.7%;--x1:66.7%"></i>
-        <i class="h" style="--y:79%;--x0:41.7%;--x1:66.7%"></i>
-        <i class="h" style="--y:28.4%;--x0:66.7%;--x1:100%"></i>
-      </div>
-
       <nav class="hero__nav" aria-label="Store">
         <a class="hero__logo" href="#top"><b>DECA</b>THLON</a>
-        <div class="hero__coords eyebrow"><a href="#feature">Kipride Max</a><i>/</i><a href="#range">Range</a><i>/</i><a href="#kit">Kits</a></div>
-        <div class="eyebrow hero__japan">Run store · India</div>
+        <span class="hero__mark eyebrow" aria-hidden="true">Run store</span>
+        <div class="hero__coords eyebrow">
+          <a href="#feature" data-track="Nav: Kipride Max">Kipride Max</a>
+          <a href="#range" data-track="Nav: Range">Range</a>
+          <a href="#kit" data-track="Nav: Kits">Kits</a>
+        </div>
       </nav>
 
-      <h1 class="h-display hero__title" id="hero-title">
-        <span class="w-solid">DECATHLON</span>
-        <span class="u-text-outline">KIPRUN</span>
-      </h1>
-
-      <div class="hero__body">
-        <div class="hero__left">
-          <div class="hero__claim">
-            <span class="h-mid">Fitted.</span>
-            <span class="h-mid">Cushioned.</span>
-            <span class="h-mid">Fast.</span>
-          </div>
-          <a class="button cc-hero-cta" href="#range"><i></i><span data-scramble>&gt;_SHOP_THE_RANGE</span><i></i></a>
-        </div>
+      <div class="hero__stage">
+        <h1 class="h-display hero__title" id="hero-title">
+          <span class="w-solid">DECATHLON</span>
+          <span class="hero__script">kiprun</span>
+        </h1>
 
         <div class="hero__gallery" id="heroGallery">
           <div class="hero-slider" id="heroSlider"></div>
           <div class="hero__gallery-label eyebrow" id="heroSliderLabel">Kipcore</div>
-          <ol class="hero__series eyebrow" id="heroSeries"></ol>
         </div>
+
+        <p class="hero__caption eyebrow">Five Kiprun series, engineered by Decathlon for every kilometre between a first 5K and race day.</p>
+        <a class="button cc-hero-cta" href="#range"><i></i><span data-scramble>&gt;_SHOP_THE_RANGE</span><i></i></a>
       </div>
 
       <div class="hero__foot">
-        <div class="eyebrow hero__scroll">Scroll to enter the store ↓</div>
+        <ol class="hero__series eyebrow" id="heroSeries"></ol>
         <div class="eyebrow hero__version" id="heroCount">Series 01 / 05</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 1b. film: the clips take the whole screen as the hero scrolls out ─── -->
+  <section class="section cc-film" id="film">
+    <div class="film__sticky">
+      <div class="film__frame" id="filmFrame">
+        <video class="film__video is-on" data-i="0"
+          poster="assets/video/kipride-beige.jpg" src="assets/video/kipride-beige.mp4"
+          muted loop playsinline preload="auto"
+          aria-label="Kipride Max in beige, filmed on a city run"></video>
+        <video class="film__video" data-i="1"
+          poster="assets/video/kipride-cobalt.jpg" src="assets/video/kipride-cobalt.mp4"
+          muted loop playsinline preload="none"
+          aria-label="Kipride Max in cobalt blue, filmed on a city run"></video>
+        <video class="film__video" data-i="2"
+          poster="assets/video/kipride-teal.jpg" src="assets/video/kipride-teal.mp4"
+          muted loop playsinline preload="none"
+          aria-label="Kipride Max in teal blue, filmed on a city run"></video>
+        <div class="film__scrim" aria-hidden="true"></div>
+
+        <div class="film__ui">
+          <div class="eyebrow film__eyebrow">&gt;_ON_THE_ROAD</div>
+          <div class="film__cap">
+            <b class="film__name" id="filmName">Beige</b>
+            <i class="eyebrow film__meta" id="filmMeta">AW26 · 8990049</i>
+          </div>
+          <ol class="film__dots" id="filmDots">
+          <li class="is-on"><button type="button" data-i="0" data-track="Film: Beige"><span class="sr-only">Beige</span></button></li>
+          <li><button type="button" data-i="1" data-track="Film: Cobalt Blue"><span class="sr-only">Cobalt Blue</span></button></li>
+          <li><button type="button" data-i="2" data-track="Film: Teal Blue"><span class="sr-only">Teal Blue</span></button></li>
+          </ol>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ─── 2. main shoe: Kipride Max floating with its key features ─── -->
   <section class="section cc-feature u-tech" id="feature">
-    <h2 class="sr-only">Kipride Max: the best shock absorption and comfort in the KIPRUN range</h2>
+    <h2 class="sr-only">Kipride Max: comfort anywhere, anytime</h2>
     <div class="feature__sticky">
       <div class="feature__kanji" aria-hidden="true">MAX</div>
       <div class="feature__stage" id="featureStage">
         <div class="feature__shoe" id="featureShoe">
           <div class="feature__bob">
             <img id="featureImg" alt="Kiprun Kipride Max running shoe">
-            <img class="feature__ghost" id="featureGhost" alt="" aria-hidden="true">
+            <canvas id="featureGl" aria-hidden="true"></canvas>
           </div>
           <span class="feature__shadow" aria-hidden="true"></span>
         </div>
@@ -89,15 +109,10 @@
       <ol class="feature__specs" id="featureSpecs"></ol>
     </div>
     <div class="feature__words" id="featureWords">
-      <span class="feature__w">Best</span>
-      <span class="feature__w">shock</span>
-      <span class="feature__w">absorption</span>
-      <span class="feature__w">in</span>
-      <span class="feature__w">the</span>
-      <span class="feature__w">Kiprun</span>
-      <span class="feature__w">range</span>
-      <span class="feature__w">Kipride</span>
-      <span class="feature__w">Max</span>
+      <span class="eyebrow feature__over">Kipride Max</span>
+      <span class="feature__w">Comfort</span>
+      <span class="feature__w">anywhere,</span>
+      <span class="feature__w">anytime</span>
     </div>
     <div class="feature__buy" id="featureBuy">
       <span class="eyebrow" id="featureCode">Model 8960547</span>
@@ -287,4 +302,4 @@
 <script src="vendor/SplitText.min.js"></script>
 <script src="vendor/ScrambleTextPlugin.min.js"></script>
 <script src="vendor/lenis.min.js"></script>
-<script src="main.js?v=13"></script>
+<script src="main.js?v=26"></script>

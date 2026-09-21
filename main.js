@@ -203,7 +203,10 @@ function cutout(src) {
   return job;
 }
 /* shoes float as cut-outs; apparel is on-model and accessories sit on their plate */
-const imageFor = (p, w = 800) => (p.cat === 'shoes' ? cutout(pic(p.img, w)) : Promise.resolve({ src: pic(p.img, w), cut: false }));
+/* studio stills the user shot, used instead of the packshot where we have one */
+const LOCAL = { '8961381': 'assets/shoes/kipstorm-8961381.webp' };
+const srcFor = (p, w) => LOCAL[p.code] || pic(p.img, w);
+const imageFor = (p, w = 1200) => (p.cat === 'shoes' ? cutout(srcFor(p, w)) : Promise.resolve({ src: srcFor(p, w), cut: false }));
 const decoded = (src) => new Promise((res) => { const im = new Image(); im.onload = im.onerror = () => res(); im.src = src; });
 
 /* ── 0. scramble helper ────────────────────────────────────────
@@ -236,53 +239,56 @@ function initCustomCursor() {
   });
 }
 
-/* ── 3. preloader ───────────────────────────────────────────── */
-function buildPreloaderGrid() {
-  const grid = $('#preloaderGrid');
-  const rows = [
-    ['[LOADING]', '', '[LOADING]'],
-    ['K', 'I', 'P'],
-    ['R', 'U', 'N'],
-    ['4', '2', 'K'],
-    ['[LOADING]', '', '[LOADING]'],
-    ['R', 'U', 'N'],
-    ['S', 'T', 'R'],
-    ['SEASON', '2026', 'SS'],
-    ['[LOADING]', '', '[LOADING]'],
-  ];
-  rows.forEach((r) => r.forEach((t) => {
-    const d = document.createElement('div');
-    d.className = 'cell'; d.textContent = t;
-    grid.appendChild(d);
-  }));
-}
+/* ── 3. preloader ─────────────────────────────────────────────
+   A reel of shoe photos plays like a short film, zooms out into a
+   card, DECATHLON / KIPRUN rises on it, then the whole panel slides
+   up to hand over to the hero. Click (or Skip) jumps to the end. */
+const REEL = Array.from({ length: 14 }, (_, i) => `assets/preloader/${String(i + 1).padStart(2, '0')}.webp`);
+const REEL_CUT = 0.11;      // seconds per photo while the reel runs full-bleed
 
 function runPreloader() {
-  const pre = $('#preloader');
-  const shoe = $('#preloaderShoe');
-  const cta = $('#preloaderCta');
+  const pre = $('#preloader'), reel = $('#plReel');
   document.body.classList.add('is-locked');
 
-  gsap.fromTo('.preloader__grid .cell', { opacity: 0 }, { opacity: 1, duration: 0.3, stagger: 0.012, ease: 'none' });
-  imageFor(FEATURE).then(({ src }) => {
-    shoe.src = src;
-    gsap.fromTo(shoe, { scale: 1.15, opacity: 0, rotate: -8 }, { scale: 1, opacity: 0.95, rotate: 0, duration: 1.2, ease: 'expo.out' });
-    if (!REDUCED) gsap.to(shoe, { y: -14, rotate: 2, duration: 2, ease: 'sine.inOut', yoyo: true, repeat: -1, delay: 1.2 });
+  const shots = REEL.map((src, i) => {
+    const im = document.createElement('img');
+    im.src = src; im.alt = ''; im.decoding = 'async';
+    if (i === 0) im.fetchPriority = 'high';
+    reel.appendChild(im);
+    return im;
   });
 
-  const ready = () => gsap.to(cta, { opacity: 1, duration: 0.5, ease: 'power2.out', onStart: () => { $('#preloaderMsg').textContent = 'Ready.'; } });
-  setTimeout(ready, REDUCED ? 200 : 3200);
-
-  const enter = () => {
+  const done = () => {
     document.body.classList.remove('is-locked');
-    gsap.timeline({ onComplete: () => { gsap.killTweensOf(shoe); pre.remove(); ScrollTrigger.refresh(); runHeroIntro(); } })
-      .to(cta, { opacity: 0, duration: 0.2, ease: 'none' })
-      .to('.preloader__grid .cell', { opacity: 0, duration: 0.2, stagger: 0.01, ease: 'none' }, 0)
-      .to(shoe, { scale: 1.4, opacity: 0, duration: 0.8, ease: 'power2.inOut' }, 0)
-      .to(pre, { yPercent: -100, duration: 0.9, ease: 'expo.out' }, 0.15);
+    pre.remove();
+    ScrollTrigger.refresh();
+    runHeroIntro();
   };
-  $('#preloaderCta .button').addEventListener('click', enter);
-  setTimeout(() => { if (document.body.contains(pre)) ready(); }, 7000);
+  if (REDUCED) { done(); return; }
+
+  const tl = gsap.timeline({ onComplete: done });
+  gsap.set(shots[0], { autoAlpha: 1 });
+  gsap.set(reel, { scale: 1.12 });
+  // hard cuts, like a reel
+  shots.forEach((im, i) => {
+    if (i) tl.set(shots[i - 1], { autoAlpha: 0 }, i * REEL_CUT).set(im, { autoAlpha: 1 }, i * REEL_CUT);
+  });
+  const reelEnd = shots.length * REEL_CUT;
+  tl.to(reel, { scale: 1, ease: 'none', duration: reelEnd }, 0)
+    .to('#plBar', { width: '100%', ease: 'none', duration: reelEnd + 0.5 }, 0)
+    // zoom out into a card
+    .to([reel, '.pl__scrim'], { scale: 0.46, borderRadius: 10, duration: 0.7, ease: 'expo.inOut' }, reelEnd)
+    .to('.pl__scrim', { opacity: 1, duration: 0.5 }, reelEnd + 0.15)
+    // DECATHLON over KIPRUN rises on the card, holds, then leaves
+    .fromTo('#plLogo', { autoAlpha: 0, y: 38 }, { autoAlpha: 1, y: 0, duration: 0.55, ease: 'expo.out' }, reelEnd + 0.45)
+    .to('#plLogo', { autoAlpha: 0, y: -70, duration: 0.4, ease: 'power2.in' }, reelEnd + 1.5)
+    .to(['#plBar', '#plSkip'], { autoAlpha: 0, duration: 0.3 }, reelEnd + 1.5)
+    // and the panel hands over to the hero
+    .to(pre, { yPercent: -100, duration: 0.9, ease: 'expo.inOut' }, reelEnd + 1.75);
+
+  const skip = () => tl.timeScale(6);
+  $('#plSkip').addEventListener('click', skip);
+  pre.addEventListener('click', skip);
 }
 
 /* ── 4. hero: the whole series ─────────────────────────────── */
@@ -290,23 +296,12 @@ let heroIndex = 0;
 function buildHero() {
   const slider = $('#heroSlider');
   const list = $('#heroSeries');
-  const ghosts = document.createElement('div');
-  ghosts.className = 'hero__ghosts';
-  ghosts.setAttribute('aria-hidden', 'true');
-  [SERIES[1], SERIES[3], SERIES[4]].forEach((p, k) => {
-    const g = document.createElement('img');
-    g.alt = ''; g.className = 'g' + k;
-    imageFor(p).then(({ src }) => { g.src = src; });
-    ghosts.appendChild(g);
-  });
-  slider.parentNode.insertBefore(ghosts, slider);
-
   SERIES.forEach((p, i) => {
     const s = document.createElement('div');
     s.className = 'slide';
     const im = document.createElement('img');
     im.alt = `Kiprun ${p.name} running shoe`;
-    imageFor(p).then(({ src }) => { im.src = src; });
+    imageFor(p, 1600).then(({ src }) => { im.src = src; });
     s.appendChild(im);
     slider.appendChild(s);
 
@@ -319,15 +314,19 @@ function buildHero() {
   gsap.set('.hero-slider .slide', { opacity: 0 });
   gsap.set('.hero-slider .slide:nth-child(1)', { opacity: 1 });
   list.children[0].classList.add('is-active');
-
-
 }
 
 function goHero(next) {
   const slides = $$('.hero-slider .slide');
   if (next === heroIndex || !slides.length) return;
-  gsap.to(slides[heroIndex], { opacity: 0, duration: 0.5, ease: 'power2.inOut' });
-  gsap.fromTo(slides[next], { opacity: 0, scale: 0.92, rotate: -4 }, { opacity: 1, scale: 1, rotate: 0, duration: 0.7, ease: 'power2.out' });
+  gsap.to(slides[heroIndex], { opacity: 0, duration: 0.28, ease: 'power2.in' });
+  gsap.fromTo(slides[next], { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out', delay: 0.06 });
+  // the cut carries a short glitch, like the reel skipping a frame
+  const slider = $('#heroSlider');
+  slider.classList.remove('is-glitch');
+  void slider.offsetWidth;                       // restart the keyframes
+  slider.classList.add('is-glitch');
+  gsap.delayedCall(0.4, () => slider.classList.remove('is-glitch'));
   $$('#heroSeries li').forEach((li, i) => li.classList.toggle('is-active', i === next));
   setScrambled($('#heroSliderLabel'), SERIES[next].name, 0.3);
   setScrambled($('#heroCount'), `Series ${String(next + 1).padStart(2, '0')} / ${String(SERIES.length).padStart(2, '0')}`, 0.3);
@@ -338,8 +337,8 @@ function runHeroIntro() {
   if (REDUCED) return;
   const title = new SplitText('.hero__title span', { type: 'chars' });
   gsap.fromTo(title.chars, { yPercent: 115 }, { yPercent: 0, duration: 0.8, stagger: 0.012, ease: 'expo.out' });
-  gsap.fromTo('.hero__claim .h-mid', { yPercent: 60, opacity: 0 },
-    { yPercent: 0, opacity: 1, duration: 0.8, stagger: 0.04, ease: 'power2.out', delay: 0.1 });
+  gsap.fromTo('.hero__caption', { y: 24, opacity: 0 },
+    { y: 0, opacity: 0.75, duration: 0.8, ease: 'power2.out', delay: 0.1 });
   gsap.fromTo('.cc-hero-cta, .hero__series, .hero__foot > *, .hero__nav > *', { opacity: 0, y: 18 },
     { opacity: 1, y: 0, duration: 0.6, stagger: 0.04, ease: 'power2.out', delay: 0.25 });
   gsap.fromTo('.hero__gallery', { opacity: 0, scale: 1.08 },
@@ -350,6 +349,67 @@ function runHeroIntro() {
 function initHeroSlider() {
   if (REDUCED || SERIES.length < 2) return;
   setInterval(() => goHero((heroIndex + 1) % SERIES.length), 3200);
+}
+
+/* ── 4b. film: the clip opens out of the hero, then cuts colourway ── */
+const FILM = [['Beige', 'AW26 · 8990049'], ['Cobalt Blue', 'AW26 · 8960618'], ['Teal Blue', 'SS26 · 8960547']];
+let filmIndex = 0;
+
+function setFilm(next) {
+  if (next === filmIndex) return;
+  const vids = $$('.film__video');
+  const frame = $('#filmFrame');
+  vids[filmIndex].pause();
+  vids[filmIndex].classList.remove('is-on');
+  const v = vids[next];
+  v.preload = 'auto';
+  v.classList.add('is-on');
+  v.currentTime = 0;
+  if (!REDUCED) v.play().catch(() => {});
+  frame.classList.remove('is-glitch');
+  void frame.offsetWidth;                        // restart the keyframes
+  frame.classList.add('is-glitch');
+  gsap.delayedCall(0.34, () => frame.classList.remove('is-glitch'));
+  $$('#filmDots li').forEach((li, i) => li.classList.toggle('is-on', i === next));
+  setScrambled($('#filmName'), FILM[next][0], 0.3);
+  setScrambled($('#filmMeta'), FILM[next][1], 0.3);
+  filmIndex = next;
+}
+
+function initFilm() {
+  const frame = $('#filmFrame');
+  if (!frame) return;
+  const vids = $$('.film__video');
+  vids.forEach((v) => { v.muted = true; });
+
+  // only run while the section is on screen, so three clips never decode at once
+  new IntersectionObserver((entries) => entries.forEach((e) => {
+    const v = vids[filmIndex];
+    if (e.isIntersecting && !REDUCED) v.play().catch(() => {}); else vids.forEach((x) => x.pause());
+  }), { threshold: 0.05 }).observe(frame);
+
+  $('#filmDots').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (b) setFilm(Number(b.dataset.i));
+  });
+
+  if (REDUCED) return;
+
+  // the frame opens from a centred card to full bleed over the first screen of scroll
+  gsap.timeline({ scrollTrigger: { trigger: '#film', start: 'top top', end: '+=70%', scrub: 0.6 } })
+    .fromTo(frame, { clipPath: 'inset(15% 26% 15% 26%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none' })
+    .fromTo(vids, { scale: 1.12 }, { scale: 1, ease: 'none' }, 0)
+    .fromTo('.film__ui', { opacity: 0 }, { opacity: 1, ease: 'none', duration: 0.4 }, 0.4);
+
+  // the rest of the section cuts through the colourways
+  ScrollTrigger.create({
+    trigger: '#film', start: 'top top', end: 'bottom bottom',
+    onUpdate: (self) => {
+      if (self.progress < 0.3) return setFilm(0);
+      const p = (self.progress - 0.3) / 0.7;
+      setFilm(Math.min(FILM.length - 1, Math.floor(p * FILM.length)));
+    },
+  });
 }
 
 /* ── 5. main shoe: pinned, floating, features call out on scroll ── */
@@ -367,9 +427,114 @@ function buildFeature() {
       <span class="spec__title">${title}</span>
       <p class="spec__text">${text}</p>
     </li>`).join('');
-  imageFor(FEATURE).then(({ src }) => { $('#featureImg').src = src; $('#featureGhost').src = src; });
+  imageFor(FEATURE, 1600).then(({ src }) => { $('#featureImg').src = src; initFeatureGl(src); });
   $('#featurePrice').textContent = inr(FEATURE.price);
   $('#featureLink').href = linkFor(FEATURE);
+}
+
+/* ── 5b. the feature shoe on a canvas: it ripples under the pointer ──
+   A quad, the cut-out as its texture, and a fragment shader that bends the
+   UVs around the cursor. If WebGL is missing the <img> underneath stays. */
+const FEATURE_VERT = `
+attribute vec2 p; varying vec2 vUv;
+void main(){ vUv = p * 0.5 + 0.5; gl_Position = vec4(p, 0.0, 1.0); }`;
+const FEATURE_FRAG = `
+precision mediump float;
+varying vec2 vUv;
+uniform sampler2D uTex;
+uniform vec2 uMouse;    // pointer in uv space
+uniform float uTime;
+uniform float uForce;   // 0 at rest, 1 right after the pointer moves
+void main(){
+  vec2 uv = vec2(vUv.x, 1.0 - vUv.y);
+  vec2 d = uv - uMouse;
+  float r = length(d);
+  vec2 dir = d / max(r, 0.0001);
+  // one ring travelling out of the cursor, fading with distance
+  float ring = sin(r * 22.0 - uTime * 3.2) * exp(-r * 5.0);
+  uv += dir * ring * 0.03 * (0.22 + uForce);
+  // a slow idle sway so it is alive before anyone touches it
+  uv.x += sin(uv.y * 7.0 + uTime * 0.6) * 0.0022;
+  vec2 shift = dir * 0.005 * uForce;
+  vec4 c = texture2D(uTex, clamp(uv, 0.001, 0.999));
+  float rr = texture2D(uTex, clamp(uv + shift, 0.001, 0.999)).r;
+  float bb = texture2D(uTex, clamp(uv - shift, 0.001, 0.999)).b;
+  gl_FragColor = vec4(rr, c.g, bb, c.a);
+}`;
+
+function initFeatureGl(src) {
+  const cv = $('#featureGl');
+  const img = $('#featureImg');
+  if (!cv || REDUCED) return;
+  const gl = cv.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: true });
+  if (!gl) return;                                   // no WebGL: the <img> is already showing
+
+  const sh = (type, srcTxt) => { const o = gl.createShader(type); gl.shaderSource(o, srcTxt); gl.compileShader(o); return o; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, FEATURE_VERT));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FEATURE_FRAG));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+  gl.useProgram(prog);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const uMouse = gl.getUniformLocation(prog, 'uMouse');
+  const uTime = gl.getUniformLocation(prog, 'uTime');
+  const uForce = gl.getUniformLocation(prog, 'uForce');
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  const tex = gl.createTexture();
+  const im = new Image();
+  im.onload = () => {
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
+    cv.style.aspectRatio = `${im.naturalWidth} / ${im.naturalHeight}`;
+    img.classList.add('is-hidden');                  // hand over from the fallback
+    size();
+    start();
+  };
+  im.src = src;
+
+  const size = () => {
+    const dpr = Math.min(2, devicePixelRatio || 1);
+    const w = Math.round(cv.clientWidth * dpr), h = Math.round(cv.clientHeight * dpr);
+    if (w && h && (cv.width !== w || cv.height !== h)) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h); }
+  };
+  addEventListener('resize', size);
+
+  let mx = 0.5, my = 0.4, force = 0, raf = 0, t0 = performance.now();
+  addEventListener('pointermove', (e) => {
+    const r = cv.getBoundingClientRect();
+    if (!r.width) return;
+    mx = (e.clientX - r.left) / r.width;
+    my = (e.clientY - r.top) / r.height;
+    force = Math.min(1, force + 0.35);
+  }, { passive: true });
+
+  const frame = () => {
+    raf = requestAnimationFrame(frame);
+    size();
+    force *= 0.96;
+    gl.uniform2f(uMouse, mx, my);
+    gl.uniform1f(uTime, (performance.now() - t0) / 1000);
+    gl.uniform1f(uForce, force);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
+  const start = () => { if (!raf) frame(); };
+  const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+  // only draw while the section is on screen
+  new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? start() : stop())), { threshold: 0 }).observe($('.cc-feature'));
 }
 
 function initFeature() {
@@ -380,10 +545,6 @@ function initFeature() {
   });
   if (!REDUCED) gsap.to('.feature__bob', { y: -20, rotate: 1.6, duration: 2.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
   gsap.to('.feature__shadow', { scaleX: 0.82, opacity: 0.6, duration: 2.2, ease: 'sine.inOut', yoyo: true, repeat: -1 });
-  gsap.to('.feature__ghost', {
-    xPercent: 2, yPercent: -1.5, ease: 'none',
-    scrollTrigger: { trigger: '.cc-feature', start: 'top bottom', end: 'bottom top', scrub: 0 },
-  });
   gsap.to('.feature__kanji', {
     yPercent: -16, ease: 'none',
     scrollTrigger: { trigger: '.cc-feature', start: 'top bottom', end: 'bottom top', scrub: 0 },
@@ -781,8 +942,7 @@ function initLenis() {
 }
 
 /* ── boot ───────────────────────────────────────────────────── */
-[...SERIES, byCode['8960640']].forEach((p) => imageFor(p));   // start cutting shoes while the loader is up
-buildPreloaderGrid();
+[...SERIES, byCode['8960640']].forEach((p) => imageFor(p, 1600));   // same width the hero asks for, so the cut is reused
 buildHero();
 buildFeature();
 buildRange();
@@ -794,6 +954,7 @@ initFeature();
 initBreaker();
 initFooterScaleTransition();
 initHeroSlider();
+initFilm();
 $('#panelClose').addEventListener('click', closePanel);
 $('#panel').addEventListener('click', (e) => { if (e.target.id === 'panel') closePanel(); });
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#panel').hidden) closePanel(); });
